@@ -18,5 +18,7 @@
   :homepage "https://github.com/Shinmera/LASS"
   :serial T
   :components ((:file "package")
+               (:file "compiler")
+               (:file "writer")
                (:file "lass"))
   :depends-on ())
