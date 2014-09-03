@@ -7,11 +7,12 @@
 (in-package #:org.tymoonnext.lass)
 
 (defvar *pretty* T)
+(defvar *indent-level* 0)
 
 ;; SHEET      ::= (BLOCK*)
-;; BLOCK      ::= (SELECTOR ATTRIBUTE*)
+;; BLOCK      ::= (:BLOCK SELECTOR ATTRIBUTE*)
 ;; SELECTOR   ::= (string*)
-;; ATTRIBUTE  ::= (string string)
+;; ATTRIBUTE  ::= (:ATTRIBUTE string string)
 
 (defun selective-downcase (thing)
   (typecase thing
@@ -19,18 +20,26 @@
     (symbol (string-downcase thing))
     (T (princ-to-string thing))))
 
-(defun write-sheet-attribute (stream attribute cp ap)
-  (declare (ignore cp ap))
-  (when attribute
-    (format stream (format NIL "~~a:~@[~* ~]~~a;" *pretty*)
-            (first attribute) (second attribute))))
+(defun indent ()
+  (make-string (if *pretty* *indent-level* 0) :initial-element #\Space))
 
-(defun write-sheet-block (stream block cp ap)
+(defgeneric write-sheet-object (type object stream)
+  (:method ((type (eql :block)) block stream)
+    (when (and block (cdr block))
+      (let ((true-format (format NIL "~a~~{~~a~~^,~@[~* ~]~~}{~:*~@[~*~%~]~~{~~/lass::write-sheet-part/~~^~:*~@[~*~%~]~~}~:*~@[~*~%~]~:*~:*~a~*}"
+                                 (indent) *pretty*))
+            (*indent-level* (+ *indent-level* 4)))
+        (format stream true-format
+                (car block) (cdr block)))))
+  (:method ((type (eql :attribute)) attribute stream)
+    (when attribute
+      (format stream (format NIL "~a~~a~~@[:~@[~* ~]~~a~~];" (indent) *pretty*)
+              (first attribute) (second attribute)))))
+
+(defun write-sheet-part (stream block cp ap)
   (declare (ignore cp ap))
-  (when (and block (cdr block))
-    (format stream (format NIL "~~{~~a~~^,~@[~* ~]~~}{~:*~@[~*~%~]~~{~:*~@[~*    ~]~~/lass::write-sheet-attribute/~~^~:*~@[~*~%~]~~}~:*~@[~*~%~]}" *pretty*)
-            (car block) (cdr block))))
+  (write-sheet-object (car block) (cdr block) stream))
 
 (defun write-sheet (sheet &key (stream T) (pretty *pretty*))
   (let ((*pretty* pretty))
-    (format stream (format NIL "~~{~~/lass::write-sheet-block/~~^~@[~*~%~%~]~~}" pretty) sheet)))
+    (format stream (format NIL "~~{~~/lass::write-sheet-part/~~^~@[~*~%~%~]~~}" pretty) sheet)))

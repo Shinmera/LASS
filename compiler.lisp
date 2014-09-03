@@ -10,11 +10,13 @@
 
 (defgeneric compile-attribute (key value)
   (:method (key (value list))
-    (list (list (selective-downcase key)
+    (list (list :attribute
+                (selective-downcase key)
                 (format NIL "~{~a~^ ~}" (mapcar #'selective-downcase value)))))
 
   (:method (key value)
-    (list (list (selective-downcase key)
+    (list (list :attribute
+                (selective-downcase key)
                 (selective-downcase value)))))
 
 ;; THIS IS SOME PRETTY SHODDY MAGIC CODE HERE
@@ -74,28 +76,34 @@
                  (keyword
                   (add-attr attr)
                   (setf attr (list field)))
-                 ((or string symbol)
-                  (push field attr))
                  (list
-                  (compile-block (list selector (car field)) (cdr field))))
+                  (compile-block (list selector (car field)) (cdr field)))
+                 (T (push field attr)))
             finally (add-attr attr)))
     (nreverse attrs)))
 
-(defun compile-block (selector fields)
-  (let ((selector (compile-selector selector))
-        (attrs ())
-        (subblocks ()))
-    (let* ((*sheet* ()))
-      (setf attrs (process-attrs selector fields))
-      (setf subblocks (nreverse *sheet*)))
-    (push
-     (cons 
-      selector
-      attrs)
-     *sheet*)
-    (dolist (block subblocks)
-      (push block *sheet*))
-    *sheet*))
+;; This function contains a lot of shuffling about of the *SHEET*
+;; this is annoying because we need to constantly push things, but
+;; also always need to preserve order of the elements, so there's
+;; a lot of reversing back and forth.
+(defgeneric compile-block (header fields)
+  (:method (selector fields)
+    (let ((selector (compile-selector selector))
+          (attrs ())
+          (subblocks ()))
+      (let* ((*sheet* ()))
+        (setf attrs (process-attrs selector fields))
+        (setf subblocks (nreverse *sheet*)))
+      (push
+       (cons
+        :block
+        (cons
+         selector
+         attrs))
+       *sheet*)
+      (dolist (block subblocks)
+        (push block *sheet*))
+      *sheet*)))
 
 (defun compile-sheet (&rest blocks)
   (let ((*sheet* ()))
