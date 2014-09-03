@@ -69,3 +69,16 @@
     (list (cons :block
                 (cons (list (format NIL "@supports~{ ~a~^,~}" (compile-selector selector)))
                       inner)))))
+
+(defmacro bind-vars (bindings &body body)
+  `(let ((*vars* (let ((table (make-hash-table)))
+                   (maphash #'(lambda (k v) (setf (gethash k table) v)) *vars*)
+                   (loop for (k v) in ,bindings
+                         do (setf (gethash k table) v))
+                   table)))
+     ,@body))
+
+(define-special-block let (bindings &rest body)
+  (bind-vars bindings
+    (apply #'compile-sheet body)))
+

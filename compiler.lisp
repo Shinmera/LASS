@@ -6,16 +6,28 @@
 
 (in-package #:org.tymoonnext.lass)
 
+(defvar *vars* (make-hash-table))
+
+(defun resolve (thing)
+  (typecase thing
+    (string
+     thing)
+    (array
+     (gethash (aref thing 0) *vars*))
+    (symbol
+     (string-downcase thing))
+    (T (princ-to-string thing))))
+
 (defgeneric compile-attribute (key value)
   (:method (key (value list))
     (list (list :attribute
-                (selective-downcase key)
-                (format NIL "~{~a~^ ~}" (mapcar #'selective-downcase value)))))
+                (resolve key)
+                (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
 
   (:method (key value)
     (list (list :attribute
-                (selective-downcase key)
-                (selective-downcase value)))))
+                (resolve key)
+                (resolve value)))))
 
 ;; THIS IS SOME PRETTY SHODDY MAGIC CODE HERE
 ;; BEWARE OF DRAGONS AND ALL THAT
@@ -28,7 +40,7 @@
                         (if (symbolp (first func))
                             (compile-selector func)
                             func))
-                       (T (list (selective-downcase func)))))
+                       (T (list (resolve func)))))
           (cargs (compile-selector (car args))))
       (loop with result = ()
             for func in cfunc
@@ -57,7 +69,7 @@
   (etypecase selector
     (null NIL)
     ((or symbol string number)
-     (list (selective-downcase selector)))
+     (list (resolve selector)))
     (list
      (compile-constraint (car selector) (cdr selector)))))
 

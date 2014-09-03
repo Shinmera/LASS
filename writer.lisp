@@ -14,12 +14,6 @@
 ;; SELECTOR   ::= (string*)
 ;; ATTRIBUTE  ::= (:ATTRIBUTE string string)
 
-(defun selective-downcase (thing)
-  (typecase thing
-    (string thing)
-    (symbol (string-downcase thing))
-    (T (princ-to-string thing))))
-
 (defun indent ()
   (make-string (if *pretty* *indent-level* 0) :initial-element #\Space))
 
