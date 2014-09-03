@@ -1,0 +1,81 @@
+(html
+ :font-family Arial sans-serif
+ :margin 0
+ :padding 0
+ 
+ (body
+  :margin 0 auto 0 auto
+  :width 720px
+  
+  (h1 :margin 0)  
+  
+  ((ul#nav)
+   :list-style none
+   ((li a)
+    :display inline-block
+    :text-decoration none))
+  
+  (.special :color ,warning-color)
+  (.important :color ,warning-color)
+  
+  (footer :width ,(+ 20 20))))
+
+;; Special treatment of first list item:
+;; can be a symbol, list or string denoating the selector.
+;; if list, plist of type and value, e.g. (id "foo" class "bar)
+;; if string or symbol, parsing according to selector standards.
+;;
+;; within the body of a selector, keywords denote attributes
+;; everything after a keyword until the next one is considered an
+;; attribute value.
+;;
+;; including computations and variables is a matter of escaping
+;; the backquote with a comma.
+;;
+;; import directives to combine lass files.
+;;
+;; extend directives to include from other matchers.
+;;
+;; custom attributes that 'expand'
+;;
+;; referencing the parent
+;;
+;; nested attributes
+
+;; Output:
+
+;; html{
+;;     font-fmaily: Arial, sans-serif;
+;;     margin: 0;
+;;     padding: 0;
+;; }
+
+;; html body{
+;;     margin: 0 auto 0 auto;
+;;     width: 720px;
+;; }
+
+;; html body h1{
+;;     margin: 0;
+;; }
+
+;; html body ul#nav{
+;;     list-style: none;
+;; }
+
+;; html body ul#nav li a{
+;;     display: inline-block;
+;;     text-decoration: none;
+;; }
+
+;; html body .special{
+;;     color: red;
+;; }
+
+;; html body .important{
+;;     color: red;
+;; }
+
+;; html body footer{
+;;     width: 40;
+;; }
