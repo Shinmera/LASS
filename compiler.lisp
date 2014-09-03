@@ -61,11 +61,6 @@
     (list
      (compile-constraint (car selector) (cdr selector)))))
 
-(defun process-attrs (selector fields)
-  (let ((attrs ()))
-    
-    ))
-
 (defgeneric compile-block (header fields)
   (:method (selector fields)
     (let ((selector (compile-selector selector))
@@ -88,7 +83,7 @@
                       (push subblock subblocks)))
                    (T (push field attr)))
               finally (add-attr attr)))
-      
+      ;; Returns list of blocks with ours consed to front
       (cons (cons :block (cons selector (nreverse attrs)))
             (nreverse subblocks)))))
 
