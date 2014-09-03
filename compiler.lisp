@@ -6,8 +6,6 @@
 
 (in-package #:org.tymoonnext.lass)
 
-(defvar *sheet*)
-
 (defgeneric compile-attribute (key value)
   (:method (key (value list))
     (list (list :attribute
@@ -65,48 +63,38 @@
 
 (defun process-attrs (selector fields)
   (let ((attrs ()))
-    (flet ((add-attr (attr)
-             (when attr
-               (let ((attr (nreverse attr)))
-                 (dolist (attr (compile-attribute (car attr) (cdr attr)))
-                   (push attr attrs))))))
-      (loop with attr = ()
-            for field in fields
-            do (etypecase field
-                 (keyword
-                  (add-attr attr)
-                  (setf attr (list field)))
-                 (list
-                  (compile-block (list selector (car field)) (cdr field)))
-                 (T (push field attr)))
-            finally (add-attr attr)))
-    (nreverse attrs)))
+    
+    ))
 
-;; This function contains a lot of shuffling about of the *SHEET*
-;; this is annoying because we need to constantly push things, but
-;; also always need to preserve order of the elements, so there's
-;; a lot of reversing back and forth.
 (defgeneric compile-block (header fields)
   (:method (selector fields)
     (let ((selector (compile-selector selector))
           (attrs ())
           (subblocks ()))
-      (let* ((*sheet* ()))
-        (setf attrs (process-attrs selector fields))
-        (setf subblocks (nreverse *sheet*)))
-      (push
-       (cons
-        :block
-        (cons
-         selector
-         attrs))
-       *sheet*)
-      (dolist (block subblocks)
-        (push block *sheet*))
-      *sheet*)))
+      ;; compute attrs and subblocks
+      (flet ((add-attr (attr)
+               (when attr
+                 (let ((attr (nreverse attr)))
+                   (dolist (attr (compile-attribute (car attr) (cdr attr)))
+                     (push attr attrs))))))
+        (loop with attr = ()
+              for field in fields
+              do (etypecase field
+                   (keyword
+                    (add-attr attr)
+                    (setf attr (list field)))
+                   (list
+                    (dolist (subblock (compile-block (list selector (car field)) (cdr field)))
+                      (push subblock subblocks)))
+                   (T (push field attr)))
+              finally (add-attr attr)))
+      
+      (cons (cons :block (cons selector (nreverse attrs)))
+            (nreverse subblocks)))))
 
 (defun compile-sheet (&rest blocks)
-  (let ((*sheet* ()))
+  (let ((sheet ()))
     (dolist (block blocks)
-      (compile-block (car block) (cdr block)))
-    (nreverse *sheet*)))
+      (dolist (resulting-block (compile-block (car block) (cdr block)))
+        (push resulting-block sheet)))
+    (nreverse sheet)))
