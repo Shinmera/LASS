@@ -7,5 +7,15 @@
 (defpackage #:LASS
   (:nicknames #:org.tymoonnext.lass)
   (:use #:cl)
-  ;; .lisp
-  (:export))
+  ;; compiler.lisp
+  (:export
+   #:compile-sheet)
+  ;; lass.lisp
+  (:export
+   #:define-special-block
+   #:define-special-attribute
+   #:define-special-selector
+   #:generate)
+  ;; writer.lisp
+  (:export
+   #:write-sheet))

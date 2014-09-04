@@ -82,3 +82,14 @@
   (bind-vars bindings
     (apply #'compile-sheet body)))
 
+(defun generate (in &key (out (merge-pathnames (make-pathname :type "css") in)) (pretty NIL) (if-exists :supersede))
+  (let ((eof (gensym "EOF")))
+    (with-open-file (outstream out :direction :output :if-exists if-exists)
+      (write-sheet
+       (apply #'compile-sheet
+              (with-open-file (instream in :direction :input)
+                (loop for read = (read instream NIL eof)
+                      until (eql read eof)
+                      collect read)))
+       :stream outstream :pretty pretty))
+    out))
