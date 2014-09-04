@@ -25,7 +25,7 @@
          ,@body))))
 
 (define-special-block charset (charset)
-  (list (list :attribute (format NIL "@charset ~a" (selective-downcase charset)))))
+  (list (list :attribute (format NIL "@charset ~a" (resolve charset)))))
 
 (define-special-block document (selector &rest body)
   (let ((inner (apply #'compile-sheet body)))
@@ -38,13 +38,13 @@
 
 (define-special-block import (url &rest media-queries)
   (list (list :attribute (format NIL "@import ~a~{ ~a~}"
-                                 (selective-downcase url)
-                                 (mapcar #'selective-downcase media-queries)))))
+                                 (resolve url)
+                                 (mapcar #'resolve media-queries)))))
 
 (define-special-block keyframes (identifier &rest body)
   (let ((inner (apply #'compile-sheet body)))
     (list (cons :block
-                (cons (list (format NIL "@keyframes ~a" (selective-downcase identifier)))
+                (cons (list (format NIL "@keyframes ~a" (resolve identifier)))
                       inner)))))
 
 (define-special-block media (selector &rest body)
@@ -55,14 +55,14 @@
 
 (define-special-block namespace (prefix/namespace &optional namespace)
   (list (list :attribute (format NIL "@namespace ~a~@[ ~a~]"
-                                 (selective-downcase prefix/namespace)
-                                 (when namespace (selective-downcase namespace))))))
+                                 (resolve prefix/namespace)
+                                 (when namespace (resolve namespace))))))
 
 (define-special-block page (pseudo-class &rest body)
   (compile-block (format NIL "@page ~a"
                          (if (keywordp pseudo-class)
                              (format NIL ":~a" (string-downcase pseudo-class))
-                             (selective-downcase pseudo-class))) body))
+                             (resolve pseudo-class))) body))
 
 (define-special-block supports (selector &rest body)
   (let ((inner (apply #'compile-sheet body)))
@@ -81,6 +81,38 @@
 (define-special-block let (bindings &rest body)
   (bind-vars bindings
     (apply #'compile-sheet body)))
+
+(define-special-attribute font-family (&rest faces)
+  (list (list :attribute "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
+
+(defmacro define-attr-comparator (comp)
+  `(define-special-selector ,comp (attr value)
+     (loop with out = ()
+           with values = (compile-selector value)
+           for attr in (compile-selector attr)
+           do (loop for value in values
+                    do (push (format NIL ,"[~a~a~a]" attr ,(string comp) value) out))
+           finally (return (nreverse out)))))
+
+(define-attr-comparator =)
+(define-attr-comparator ~=)
+(define-attr-comparator *=)
+(define-attr-comparator $=)
+(define-attr-comparator ^=)
+(define-attr-comparator /=)
+
+(defmacro define-single-arg-selector (name)
+  `(define-special-selector ,name (arg)
+     (loop for arg in (compile-selector arg)
+           collect (format NIL ":~a(~a)" ,(string-downcase name) arg))))
+
+(define-single-arg-selector dir)
+(define-single-arg-selector lang)
+(define-single-arg-selector not)
+(define-single-arg-selector nth-child)
+(define-single-arg-selector nth-last-child)
+(define-single-arg-selector nth-last-of-type)
+(define-single-arg-selector nth-of-type)
 
 (defun generate (in &key (out (merge-pathnames (make-pathname :type "css") in)) (pretty NIL) (if-exists :supersede))
   (let ((eof (gensym "EOF")))
