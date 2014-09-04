@@ -14,6 +14,8 @@
      thing)
     (array
      (gethash (aref thing 0) *vars*))
+    (keyword
+     (format NIL ":~a" (string-downcase thing)))
     (symbol
      (string-downcase thing))
     (T (princ-to-string thing))))
@@ -21,7 +23,7 @@
 (defgeneric compile-attribute (key value)
   (:method (key (value list))
     (list (list :attribute
-                (resolve key)
+                (string-downcase key)
                 (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
 
   (:method (key value)
@@ -62,8 +64,10 @@
                   for func in cfunc
                   do (loop for arg in cargs
                            do (push (format NIL "~a~a" func arg) result))
-                  finally (return (compile-constraint :and (append (nreverse result) (cddr args))))))
-          args))))
+                  finally (return (compile-constraint :and (cons (cons :OR (nreverse result)) (cddr args))))))
+          (if (and (listp (first args)) (eql (first (first args)) :OR))
+              (rest (first args))
+              args)))))
 
 (defun compile-selector (selector)
   (etypecase selector
