@@ -60,7 +60,8 @@
   `(let ((*vars* (let ((table (make-hash-table)))
                    (maphash #'(lambda (k v) (setf (gethash k table) v)) *vars*)
                    (loop for (k v) in ,bindings
-                         do (setf (gethash k table) v))
+                         do (setf (gethash k table)
+                                  (resolve v)))
                    table)))
      ,@body))
 
