@@ -41,7 +41,7 @@
     background: black;
 }&quot;</code></pre>
 
-<p>LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a list of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.</p>
+<p>LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a bunch of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.</p>
 
 <pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
  '(nav
@@ -174,7 +174,7 @@ article p a:hover, article blockquote a:hover{
     }
 }&quot;</code></pre>
 
-<p>By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified css:</p>
+<p>By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified CSS:</p>
 
 <pre><code>(<a href="http://l1sp.org/cl/let">let</a> (<a href="#LASS:*PRETTY*">(lass:*pretty*</a> NIL))
   (<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>

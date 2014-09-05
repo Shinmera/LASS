@@ -16,7 +16,7 @@ LASS supports two modes, one being directly in your lisp code, the other in pure
 }"
 ```
 
-LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a list of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.
+LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a bunch of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.
 
 ```
 (lass:compile-and-write
@@ -163,7 +163,7 @@ LASS also supports the various `@QUERY` operator blocks:
 }"
 ```
 
-By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified css:
+By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified CSS:
 
 ```
 (let ((lass:*pretty* NIL))
