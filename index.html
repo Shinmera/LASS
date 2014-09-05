@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title>LASS</title>
+    <style type="text/css">
+      code a{text-decoration:none;}
+      h1{display:inline-block;font-size: 28pt;margin-bottom:0;}
+      code{font-family: Consolas, Inconsolata, monospace;}
+      h4{display: inline-block;margin:0;padding:0;}
+      #symbol-index ul{list-style: none;}
+      .package li{margin-bottom: 20px;}
+      .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+      .package .nicknames{font-size: 12pt; font-weight: normal;}
+      table{margin: 20px;}
+      td{padding-bottom: 10px;}
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>lass</h1>
+      <span>0.1.1</span>
+      <p>Lisp Augmented Style Sheets. Compiles LASS to CSS.</p>
+    </header>
+    <div id="content">
+      <article>
+        <c:documentate>
+          <span><h2>About LASS</h2>
+
+<p>Writing CSS files comes with a lot of repetition and is generally much too verbose. With lispy syntax, shortcuts, and improvements, LASS aims to help you out in writing CSS quick and easy. LASS was largely inspired by <a href="http://sass-lang.com/">SASS</a>.</p>
+
+<h2>How To</h2>
+
+<p>LASS supports two modes, one being directly in your lisp code, the other in pure LASS files. Adding LASS into your code is easy:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(div
+   :background black))
+
+&quot;div{
+    background: black;
+}&quot;</code></pre>
+
+<p>LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a list of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(nav
+   (ul
+    :list-style none
+    (li
+     :margin 0 :padding 0
+     :display inline-block)))))
+
+&quot;nav ul{
+    list-style: none;
+}
+
+nav ul li{
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}&quot;</code></pre>
+
+<p>Since LASS' <code><a href="#LASS:COMPILE-SHEET">COMPILE-SHEET</a></code> simply takes a bunch of lists as its argument, you can use the backquote and comma to integrate variables from your lisp environment:</p>
+
+<pre><code>(<a href="http://l1sp.org/cl/let">let</a> ((color &quot;#0088EE&quot;))
+  (<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+   `(div
+     :background ,color))))
+
+&quot;div{
+    background: #0088EE;
+}&quot;</code></pre>
+
+<p>Alternatively however, and this is especially useful in pure LASS files, you can use the <code><a href="http://l1sp.org/cl/let">LET</a></code> block to create LASS-specific bindings:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(:let ((color &quot;#0088EE&quot;))
+   (div
+    :background #(color))))
+
+&quot;div{
+    background: #0088EE;
+}&quot;</code></pre>
+
+<p>LASS' selector mechanism is very flexible and allows for some complex logic to reduce duplication:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(article
+   ((:or p blockquote)
+    :margin 0 :padding 0
+
+    (a
+     :color black)
+      
+    ((:and a :hover)
+     :color darkred))))
+
+&quot;article p, article blockquote{
+    margin: 0;
+    padding: 0;
+}
+
+article p a, article blockquote a{
+    color: black;
+}
+
+article p a:hover, article blockquote a:hover{
+    color: darkred;
+}&quot;</code></pre>
+
+<p>But it can go even further:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '((:and
+    (:or article section)
+    (:= data-author (:or yukari ran chen))
+    (:nth-child (:or 1 2 3)))
+   :display none))
+
+&quot;@media lol{
+    article[data-author=\&quot;yukari\&quot;]:nth-child(1),
+     article[data-author=\&quot;yukari\&quot;]:nth-child(2),
+     article[data-author=\&quot;yukari\&quot;]:nth-child(3),
+     article[data-author=\&quot;ran\&quot;]:nth-child(1),
+     article[data-author=\&quot;ran\&quot;]:nth-child(2),
+     article[data-author=\&quot;ran\&quot;]:nth-child(3),
+     article[data-author=\&quot;chen\&quot;]:nth-child(1),
+     article[data-author=\&quot;chen\&quot;]:nth-child(2),
+     article[data-author=\&quot;chen\&quot;]:nth-child(3),
+     section[data-author=\&quot;yukari\&quot;]:nth-child(1),
+     section[data-author=\&quot;yukari\&quot;]:nth-child(2),
+     section[data-author=\&quot;yukari\&quot;]:nth-child(3),
+     section[data-author=\&quot;ran\&quot;]:nth-child(1),
+     section[data-author=\&quot;ran\&quot;]:nth-child(2),
+     section[data-author=\&quot;ran\&quot;]:nth-child(3),
+     section[data-author=\&quot;chen\&quot;]:nth-child(1),
+     section[data-author=\&quot;chen\&quot;]:nth-child(2),
+     section[data-author=\&quot;chen\&quot;]:nth-child(3){
+        display: none;
+    }
+}&quot;</code></pre>
+
+<p>Whoa nelly!</p>
+
+<p>Some CSS properties are not fully specified yet and require browser-specific prefixes. LASS can help you with that, too:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(.fun
+   :linear-gradient &quot;deg(45)&quot; black 0% darkgray 100%
+   :transform rotate -45deg))
+
+&quot;.fun{
+    background: -moz-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -o-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -webkit-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -ms-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: linear-gradient(deg(45), black 0%, darkgray 100%);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}&quot;</code></pre>
+
+<p>LASS also supports the various <code>@QUERY</code> operator blocks:</p>
+
+<pre><code>(<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+ '(:media &quot;(max-width: 800px)&quot;
+   (div
+    :margin 0)))
+
+&quot;@media (max-width: 800px){
+    div{
+        margin: 0;
+    }
+}&quot;</code></pre>
+
+<p>By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified css:</p>
+
+<pre><code>(<a href="http://l1sp.org/cl/let">let</a> (<a href="#LASS:*PRETTY*">(lass:*pretty*</a> NIL))
+  (<a href="#LASS:COMPILE-AND-WRITE">lass:compile-and-write</a>
+   '(:media &quot;(max-width: 800px)&quot;
+     (div
+      :margin 0))))
+
+&quot;@media (max-width: 800px){div{margin:0;}}&quot;</code></pre>
+
+<p>As mentioned above you can write pure LASS files to compile down to a CSS file. To do that, simply use <code><a href="#LASS:GENERATE">GENERATE</a></code>:</p>
+
+<p><img src="http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png" alt="generate-example"/></p>
+
+<h2>Extending LASS</h2>
+
+<p>Pretty much every part of LASS is extensible through methods. Most useful will however probably be the <code>DEFINE-SPECIAL-PROPERTY</code>, <code>DEFINE-BROWSER-PROPERY</code> and <code><a href="#LASS:DEFINE-SPECIAL-SELECTOR">DEFINE-SPECIAL-SELECTOR</a></code> helper-macros. Here's some examples from the <code>SPECIAL.LISP</code> file that defines some standard special handlers:</p>
+
+<pre><code>(define-special-property font-family (&amp;rest faces)
+  (<a href="http://l1sp.org/cl/list">list</a> (<a href="#LASS:MAKE-PROPERTY">make-property</a> &quot;font-family&quot; (<a href="http://l1sp.org/cl/format">format</a> NIL &quot;~{~a~^, ~}&quot; (<a href="http://l1sp.org/cl/mapcar">mapcar</a> #'resolve faces)))))
+
+(define-browser-property linear-gradient (direction &amp;rest colors)
+  (:default (property)
+    (<a href="#LASS:MAKE-PROPERTY">make-property</a> &quot;background&quot; (<a href="http://l1sp.org/cl/format">format</a> NIL &quot;~a(~a~{, ~a ~a~})&quot;
+                                         property (<a href="#LASS:RESOLVE">resolve</a> direction) (<a href="http://l1sp.org/cl/mapcar">mapcar</a> #'resolve colors)))))</code></pre>
+
+<p>For more control, have a look at the various <code>COMPILE-*</code> generic functions.</p>
+</span>
+        </c:documentate>
+      </article>
+      <article>
+        <h2>Copyright</h2>
+        <span>lass</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license and ©<span>2014</span> <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>. This library can be obtained on <a href="https://github.com/Shinmera/LASS">https://github.com/Shinmera/LASS</a>.
+      </article>
+      <article id="symbol-index">
+        <h2>Package Index</h2>
+        <ul><li class="package">
+            <h3>
+              <a name="LASS" href="#LASS">LASS</a>
+              <span class="nicknames">(ORG.TYMOONNEXT.LASS)</span>
+            </h3>
+            <ul><li>
+                <a name="LASS:COMPILE-AND-WRITE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-AND-WRITE">COMPILE-AND-WRITE</a></h4>
+                      <span/>
+                      <span>(&amp;REST FORMS)</span>
+                    </code>
+                  </header>
+                  <pre>Shortcut for (WRITE-SHEET (COMPILE-SHEET FORMS*))</pre>
+                </article>
+              </li><li>
+                <a name="LASS:COMPILE-SHEET"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-SHEET">COMPILE-SHEET</a></h4>
+                      <span/>
+                      <span>(&amp;REST BLOCKS)</span>
+                    </code>
+                  </header>
+                  <pre>Compiles a LASS sheet composed of BLOCKS.
+Each BLOCK is passed to COMPILE-BLOCK. The results thereof are appended
+together into one list of blocks and properties.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:GENERATE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:GENERATE">GENERATE</a></h4>
+                      <span/>
+                      <span>(IN &amp;KEY (OUT (MERGE-PATHNAMES (MAKE-PATHNAME TYPE css) IN)) (PRETTY NIL)
+ (IF-EXISTS SUPERSEDE))</span>
+                    </code>
+                  </header>
+                  <pre>Generate a CSS file from a LASS file.
+
+IN        --- The LASS input file. Has to be READable.
+OUT       --- The target file, by default a file of same location and name, but with CSS type.
+PRETTY    --- Whether to minify or not. See WRITE-SHEET.
+IF-EXISTS --- See WITH-OPEN-FILE
+
+Returns OUT</pre>
+                </article>
+              </li><li>
+                <a name="LASS:INDENT"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:INDENT">INDENT</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Returns a string of the appropriate number of spaces depending on *PRETTY* and *INDENT-LEVEL*</pre>
+                </article>
+              </li><li>
+                <a name="LASS:MAKE-BLOCK"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:MAKE-BLOCK">MAKE-BLOCK</a></h4>
+                      <span/>
+                      <span>(SELECTOR VALUES)</span>
+                    </code>
+                  </header>
+                  <pre>Creates a block object with SELECTOR and VALUES.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:MAKE-PROPERTY"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:MAKE-PROPERTY">MAKE-PROPERTY</a></h4>
+                      <span/>
+                      <span>(PROPERTY &amp;OPTIONAL VALUE)</span>
+                    </code>
+                  </header>
+                  <pre>Creates a property object with PROPERTY as its key and VALUE as its value.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:WRITE-SHEET"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:WRITE-SHEET">WRITE-SHEET</a></h4>
+                      <span/>
+                      <span>(SHEET &amp;KEY (STREAM NIL) (PRETTY *PRETTY*))</span>
+                    </code>
+                  </header>
+                  <pre>Writes the compiled SHEET object to STREAM.
+If PRETTY is non-NIL, spaces and newlines are inserted as appropriate
+in order to create a human-readable stylesheet. Otherwise whitespace is
+only used where necessary, producing a minified version.
+
+STREAM can be a STREAM, T for *STANDARD-OUTPUT*, or NIL for a STRING.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:WRITE-SHEET-PART"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:WRITE-SHEET-PART">WRITE-SHEET-PART</a></h4>
+                      <span/>
+                      <span>(STREAM BLOCK CP AP)</span>
+                    </code>
+                  </header>
+                  <pre>Wrapper around WRITE-SHEET-OBJECT so that we can call it from FORMAT.
+Calls WRITE-SHEET-OBJECT with (CAR BLOCK) (CDR BLOCK) STREAM.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:COMPILE-BLOCK"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-BLOCK">COMPILE-BLOCK</a></h4>
+                      <span/>
+                      <span>(HEADER FIELDS)</span>
+                    </code>
+                  </header>
+                  <pre>Compiles the block with given HEADER and FIELDS list.
+By default, the following case is handled:
+
+ (T T)
+Blocks are handled in the following way:
+The HEADER is used as a selector and compiled through COMPILE-SELECTOR.
+Fields are semantically segregated through KEYWORDS and LISTS.
+
+Every time a KEYWORD is encountered, it is taken as the current property
+and all following objects until either a LIST or a KEYWORD is encountered
+are gathered as the property's values.
+
+Every time a LIST is encountered, it is taken as a SUB-BLOCK and is
+passed to COMPILE-BLOCK with the HEADER being the current block's
+selector prepended to the selector of the sub-block.
+
+
+Special handling of blocks may occur. 
+See DEFINE-SPECIAL-BLOCK.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:COMPILE-CONSTRAINT"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-CONSTRAINT">COMPILE-CONSTRAINT</a></h4>
+                      <span/>
+                      <span>(FUNC ARGS)</span>
+                    </code>
+                  </header>
+                  <pre>Compiles a constraint of type FUNC with arguments ARGS to a list of alternative selectors.
+By default, the following cases are handled:
+
+ (T T)
+Concatenates its ARGS together with spaces.
+Preserves OR combinations.
+
+ (NULL NULL)
+Returns NIL
+
+ (T NULL)
+Returns FUNC
+
+ (:OR T)
+Passes all ARGS to COMPILE-SELECTOR individually and then APPENDS
+all the results together.
+
+ (:AND T)
+Concatenates its ARGS together without spaces.
+Preserves OR combinations.
+
+
+Special handling of constraints may occur.
+See DEFINE-SPECIAL-SELECTOR.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:COMPILE-PROPERTY"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-PROPERTY">COMPILE-PROPERTY</a></h4>
+                      <span/>
+                      <span>(KEY VALUE)</span>
+                    </code>
+                  </header>
+                  <pre>Compile a property of KEY and VALUE to a list of property objects.
+By default, the following cases are handled:
+
+ (T LIST)
+A list is created with one property object, wherein the property-value is the
+Space-concatenated list of RESOLVEd VALUEs. The KEY is DOWNCASEd.
+
+ (T T)
+A list is created with one property object, wherein the property-value is the
+RESOLVEd VALUE. The KEY is DOWNCASEd.
+
+
+Special handling of properties may occur.
+See DEFINE-SPECIAL-PROPERTY</pre>
+                </article>
+              </li><li>
+                <a name="LASS:COMPILE-SELECTOR"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:COMPILE-SELECTOR">COMPILE-SELECTOR</a></h4>
+                      <span/>
+                      <span>(SELECTOR)</span>
+                    </code>
+                  </header>
+                  <pre>Compiles the SELECTOR form into a list of alternative selectors.
+By default, the following cases are handled:
+
+ (NULL)
+Returns NIL.
+
+ (LIST)
+Calls COMPILE-CONSTRAINT with the SELECTOR's CAR and CDR.
+
+ (T)
+Returns a list with the RESOLVEd SELECTOR.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:RESOLVE"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:RESOLVE">RESOLVE</a></h4>
+                      <span/>
+                      <span>(THING)</span>
+                    </code>
+                  </header>
+                  <pre>Resolves THING to a value that makes sense for LASS.
+
+By default the following types are handled:
+NULL:    NIL
+STRING:  the THING itself
+ARRAY:   the variable stored in *VARS* under THING
+KEYWORD: Colon-prefixed, downcased symbol-name of THING
+SYMBOL:  Downcased symbol-name of THING
+T:       PRINC-TO-STRING of THING</pre>
+                </article>
+              </li><li>
+                <a name="LASS:WRITE-SHEET-OBJECT"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:WRITE-SHEET-OBJECT">WRITE-SHEET-OBJECT</a></h4>
+                      <span/>
+                      <span>(TYPE OBJECT STREAM)</span>
+                    </code>
+                  </header>
+                  <pre>Writes the OBJECT of type TYPE to STREAM.
+
+By default the following TYPEs are handled:
+ :BLOCK (SELECTOR-LIST OBJECTS*)
+Prints the SELECTOR-LIST separated by commas, followed by an opening brace
+and the printed list of OBJECTS using WRITE-SHEET-PART. Finally the body is
+closed off with a closing brace. Newlines and spaces may be inserted where
+necessary if *PRETTY* is non-NIL.
+
+ :PROPERTY (KEY VALUE)
+Prints the KEY. If VALUE is non-NIL, a colon is printed followed by the
+VALUE. Finally a semicolon is printed. Spaces may be inserted where necessary
+if *PRETTY* is non-NIL.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-SINGLE-ARG-SELECTOR"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-SINGLE-ARG-SELECTOR">DEFINE-SINGLE-ARG-SELECTOR</a></h4>
+                      <span/>
+                      <span>(NAME)</span>
+                    </code>
+                  </header>
+                  <pre>Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-SPECIAL-BLOCK"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-SPECIAL-BLOCK">DEFINE-SPECIAL-BLOCK</a></h4>
+                      <span/>
+                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                    </code>
+                  </header>
+                  <pre>Define handling of a special block type.
+In order for the block to be recognised, it has to begin with the NAME as a keyword.
+The ARGS is a lambda-list that parses the block contents.
+
+Expected as a return value is a /list/ of either attributes or blocks.
+
+See COMPILE-BLOCK</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-SPECIAL-SELECTOR"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-SPECIAL-SELECTOR">DEFINE-SPECIAL-SELECTOR</a></h4>
+                      <span/>
+                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                    </code>
+                  </header>
+                  <pre>Define handling of a special selector type.
+In order for the selector to be recognised, it has to begin with the NAME as a keyword.
+The ARGS is a lambda-list that parses the selector contents.
+
+Expected as a return value is a /list/ of alternate versions of selectors.
+
+See COMPILE-CONSTRAINT.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:*INDENT-LEVEL*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#LASS:*INDENT-LEVEL*">*INDENT-LEVEL*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Directs the current amount of spaces used to indent.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:*PRETTY*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#LASS:*PRETTY*">*PRETTY*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Directs whether to pretty-print using whitespace or not.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:*VARS*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#LASS:*VARS*">*VARS*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Special variable containing LASS-environment variables.
+
+See the definition of the LET block.</pre>
+                </article>
+              </li></ul>
+          </li></ul>
+      </article>
+    </div>
+  </body>
+</html>
