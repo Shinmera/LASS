@@ -36,7 +36,7 @@ VALUE. Finally a semicolon is printed. Spaces may be inserted where necessary
 if *PRETTY* is non-NIL.")
   (:method ((type (eql :block)) block stream)
     (when (and block (cdr block))
-      (let ((true-format (format NIL "~a~~{~~a~~^,~@[~* ~]~~}{~:*~@[~*~%~]~~{~~/lass::write-sheet-part/~~^~:*~@[~*~%~]~~}~:*~@[~*~%~]~:*~:*~a~*}"
+      (let ((true-format (format NIL "~a~~{~~a~~^,~@[~%~:*~a~* ~]~~}{~:*~@[~*~%~]~~{~~/lass::write-sheet-part/~~^~:*~@[~*~%~]~~}~:*~@[~*~%~]~:*~:*~a~*}"
                                  (indent) *pretty*))
             (*indent-level* (+ *indent-level* 4)))
         (format stream true-format
