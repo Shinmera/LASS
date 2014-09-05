@@ -6,8 +6,10 @@
 
 (in-package #:org.tymoonnext.lass)
 
-(defvar *pretty* T)
-(defvar *indent-level* 0)
+(defvar *pretty* T
+  "Directs whether to pretty-print using whitespace or not.")
+(defvar *indent-level* 0
+  "Directs the current amount of spaces used to indent.")
 
 ;; SHEET     ::= (BLOCK*)
 ;; BLOCK     ::= (:BLOCK SELECTOR PROPERTY*)
