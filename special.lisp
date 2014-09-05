@@ -78,7 +78,7 @@
            with values = (compile-selector value)
            for attr in (compile-selector attr)
            do (loop for value in values
-                    do (push (format NIL ,"[~a~a~a]" attr ,(string comp) value) out))
+                    do (push (format NIL ,"[~a~a\"~a\"]" attr ,(string comp) value) out))
            finally (return (nreverse out)))))
 
 (define-attr-comparator =)
@@ -137,27 +137,27 @@ is used as a fallback."
 (define-browser-property linear-gradient (direction &rest colors)
   (:default (property)
     (make-property "background" (format NIL "~a(~a~{, ~a ~a~})"
-                                         property (resolve direction) (mapcar #'resolve colors)))))
+                                        property (resolve direction) (mapcar #'resolve colors)))))
 
 (define-browser-property radial-gradient (shape size position &rest colors)
   (:default (property)
     (make-property "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
-                                         property (resolve shape) (resolve size) (resolve position) (mapcar #'resolve colors)))))
+                                        property (resolve shape) (resolve size) (resolve position) (mapcar #'resolve colors)))))
 
 (define-browser-property repeating-radial-gradient (shape size position &rest colors)
   (:default (property)
     (make-property "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
-                                         property (resolve shape) (resolve size) (resolve position) (resolve colors)))))
+                                        property (resolve shape) (resolve size) (resolve position) (resolve colors)))))
 
 (define-browser-property transform (value/function &rest function-args)
   (:default (property)
     (make-property property (format NIL "~a~@[(~{~a~^, ~})~]"
-                                      (resolve value/function) (resolve function-args)))))
+                                    (resolve value/function) (mapcar #'resolve function-args)))))
 
 (define-browser-property transform-origin (value/x &optional y z)
   (:default (property)
     (make-property property (format NIL "~a~@[ ~a~]~@[ ~a~]"
-                                      (resolve value/x) (resolve y) (resolve z)))))
+                                    (resolve value/x) (resolve y) (resolve z)))))
 
 (define-browser-property transform-style (style)
   (:default (property)
@@ -166,7 +166,7 @@ is used as a fallback."
 (define-browser-property transition (value/property &optional duration timing-function &rest function-args)
   (:default (property)
     (make-property property (format NIL "~a~@[ ~a~]~:[~*~;~:* ~a~@[(~{~a~^, ~})~]~]"
-                                      (resolve value/property) (resolve duration) (resolve timing-function) (mapcar #'resolve function-args)))))
+                                    (resolve value/property) (resolve duration) (resolve timing-function) (mapcar #'resolve function-args)))))
 
 (define-browser-property transition-delay (value)
   (:default (property)
@@ -182,4 +182,5 @@ is used as a fallback."
 
 (define-browser-property transition-timing-function (value/function &rest function-args)
   (:default (property)
-    (make-property property (format NIL "~a~@[(~{~a~^, ~})~]" (resolve value/function) (mapcar #'resolve function-args)))))
+    (make-property property (format NIL "~a~@[(~{~a~^, ~})~]"
+                                    (resolve value/function) (mapcar #'resolve function-args)))))
