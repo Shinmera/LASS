@@ -9,9 +9,15 @@
   (:use #:cl)
   ;; compiler.lisp
   (:export
-   #:compile-sheet
-   #:make-attribute
-   #:make-block)
+   #:*vars*
+   #:resolve
+   #:make-property
+   #:make-block
+   #:compile-property
+   #:compile-constraint
+   #:compile-selector
+   #:compile-block
+   #:compile-sheet)
   ;; lass.lisp
   (:export
    #:define-special-block
@@ -24,4 +30,9 @@
    #:define-browser-attribute)
   ;; writer.lisp
   (:export
+   #:*pretty*
+   #:*indent-level*
+   #:indent
+   #:write-sheet-object
+   #:write-sheet-part
    #:write-sheet))
