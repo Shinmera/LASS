@@ -73,7 +73,7 @@ See DEFINE-SPECIAL-PROPERTY")
 ;;
 ;; Can't wait for bugs about this to hit me down the line.
 (defgeneric compile-constraint (func args)
-  "Compiles a constraint of type FUNC with arguments ARGS to a list of alternative selectors.
+  (:documentation "Compiles a constraint of type FUNC with arguments ARGS to a list of alternative selectors.
 By default, the following cases are handled:
 
  (T T)
@@ -96,7 +96,7 @@ Preserves OR combinations.
 
 
 Special handling of constraints may occur.
-See DEFINE-SPECIAL-SELECTOR."
+See DEFINE-SPECIAL-SELECTOR.")
   (:method (func args)
     (let ((cfunc (cond ((listp func)
                         (if (symbolp (first func))
