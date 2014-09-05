@@ -9,13 +9,19 @@
   (:use #:cl)
   ;; compiler.lisp
   (:export
-   #:compile-sheet)
+   #:compile-sheet
+   #:make-attribute
+   #:make-block)
   ;; lass.lisp
   (:export
    #:define-special-block
    #:define-special-attribute
    #:define-special-selector
    #:generate)
+  ;; special.lisp
+  (:export
+   #:define-single-arg-selector
+   #:define-browser-attribute)
   ;; writer.lisp
   (:export
    #:write-sheet))
