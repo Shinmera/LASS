@@ -72,6 +72,7 @@
 ;;; SELECTORS
 
 (defmacro define-attr-comparator (comp)
+  "Helper macro to define an attribute comparator selector."
   `(define-special-selector ,comp (attr value)
      (loop with out = ()
            with values = (compile-selector value)
@@ -88,6 +89,7 @@
 (define-attr-comparator /=)
 
 (defmacro define-single-arg-selector (name)
+  "Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD."
   `(define-special-selector ,name (arg)
      (loop for arg in (compile-selector arg)
            collect (format NIL ":~a(~a)" ,(string-downcase name) arg))))
@@ -106,6 +108,19 @@
   (list (make-property "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
 
 (defmacro define-browser-property (name args &body browser-options)
+  "Helper macro to define properties that have browser-dependant versions.
+
+NAME            --- The base name of the property name or value.
+ARGS            --- Property arguments, see DEFINE-SPECIAL-PROPERTY.
+BROWSER-OPTIONS ::= (OPTION (symbol) FORM*)
+OPTION          ::= :MOZ | :O | :WEBKIT | :MS | :W3C | :DEFAULT
+
+Each browser-option body should return a single property. The SYMBOL
+in the option definition is bound to the computed property name
+ (eg -moz-NAME for the :MOZ option).
+You can define special handling of the browsers by defining options
+specifically for them. If no handling is defined, the DEFAULT option
+is used as a fallback."
   `(define-special-property ,name ,args
      (list ,@(loop for (browser prefix) in '((:moz "-moz-")
                                              (:o "-o-")

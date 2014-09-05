@@ -6,38 +6,66 @@
 
 (in-package #:org.tymoonnext.lass)
 
-(defvar *vars* (make-hash-table))
+(defvar *vars* (make-hash-table)
+  "Special variable containing LASS-environment variables.
 
-(defun resolve (thing)
-  (typecase thing
-    (null
-     NIL)
-    (string
-     thing)
-    (array
-     (gethash (aref thing 0) *vars*))
-    (keyword
-     (format NIL ":~a" (string-downcase thing)))
-    (symbol
-     (string-downcase thing))
-    (T (princ-to-string thing))))
+See the definition of the LET block.")
+
+(defgeneric resolve (thing)
+  (:documentation "Resolves THING to a value that makes sense for LASS.
+
+By default the following types are handled:
+NULL:    NIL
+STRING:  the THING itself
+ARRAY:   the variable stored in *VARS* under THING
+KEYWORD: Colon-prefixed, downcased symbol-name of THING
+SYMBOL:  Downcased symbol-name of THING
+T:       PRINC-TO-STRING of THING")
+  (:method ((thing null))
+    NIL)
+  (:method ((thing string))
+    thing)
+  (:method ((thing array))
+    (gethash (aref thing 0) *vars*))
+  (:method ((thing symbol))
+    (if (keywordp thing)
+        (format NIL ":~a" (string-downcase thing))
+        (string-downcase thing)))
+  (:method ((thing T))
+    (princ-to-string thing)))
 
 (defun make-property (property &optional value)
+  "Creates a property object with PROPERTY as its key and VALUE as its value."
   (list :property property value))
 
 (defun make-block (selector values)
+  "Creates a block object with SELECTOR and VALUES."
   (cons :block (cons selector values)))
 
 (defgeneric compile-property (key value)
+  (:documentation "Compile a property of KEY and VALUE to a list of property objects.
+By default, the following cases are handled:
+
+ (T LIST)
+A list is created with one property object, wherein the property-value is the
+Space-concatenated list of RESOLVEd VALUEs. The KEY is DOWNCASEd.
+
+ (T T)
+A list is created with one property object, wherein the property-value is the
+RESOLVEd VALUE. The KEY is DOWNCASEd.
+
+
+Special handling of properties may occur.
+See DEFINE-SPECIAL-PROPERTY")
   (:method (key (value list))
     (list (make-property
-                (string-downcase key)
-                (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
+           (string-downcase key)
+           (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
 
   (:method (key value)
     (list (make-property
-                (resolve key)
-                (resolve value)))))
+           (string-downcase key)
+           (resolve value)))))
 
 ;; THIS IS SOME PRETTY SHODDY MAGIC CODE HERE
 ;; BEWARE OF DRAGONS AND ALL THAT
@@ -45,6 +73,30 @@
 ;;
 ;; Can't wait for bugs about this to hit me down the line.
 (defgeneric compile-constraint (func args)
+  "Compiles a constraint of type FUNC with arguments ARGS to a list of alternative selectors.
+By default, the following cases are handled:
+
+ (T T)
+Concatenates its ARGS together with spaces.
+Preserves OR combinations.
+
+ (NULL NULL)
+Returns NIL
+
+ (T NULL)
+Returns FUNC
+
+ (:OR T)
+Passes all ARGS to COMPILE-SELECTOR individually and then APPENDS
+all the results together.
+
+ (:AND T)
+Concatenates its ARGS together without spaces.
+Preserves OR combinations.
+
+
+Special handling of constraints may occur.
+See DEFINE-SPECIAL-SELECTOR."
   (:method (func args)
     (let ((cfunc (cond ((listp func)
                         (if (symbolp (first func))
@@ -77,15 +129,45 @@
               (rest (first args))
               args)))))
 
-(defun compile-selector (selector)
-  (etypecase selector
-    (null NIL)
-    ((or symbol string number)
-     (list (resolve selector)))
-    (list
-     (compile-constraint (car selector) (cdr selector)))))
+(defgeneric compile-selector (selector)
+  (:documentation "Compiles the SELECTOR form into a list of alternative selectors.
+By default, the following cases are handled:
+
+ (NULL)
+Returns NIL.
+
+ (LIST)
+Calls COMPILE-CONSTRAINT with the SELECTOR's CAR and CDR.
+
+ (T)
+Returns a list with the RESOLVEd SELECTOR.")
+  (:method ((selector null))
+    NIL)
+  (:method ((selector list))
+    (compile-constraint (car selector) (cdr selector)))
+  (:method ((selector T))
+    (list (resolve selector))))
 
 (defgeneric compile-block (header fields)
+  (:documentation "Compiles the block with given HEADER and FIELDS list.
+By default, the following case is handled:
+
+ (T T)
+Blocks are handled in the following way:
+The HEADER is used as a selector and compiled through COMPILE-SELECTOR.
+Fields are semantically segregated through KEYWORDS and LISTS.
+
+Every time a KEYWORD is encountered, it is taken as the current property
+and all following objects until either a LIST or a KEYWORD is encountered
+are gathered as the property's values.
+
+Every time a LIST is encountered, it is taken as a SUB-BLOCK and is
+passed to COMPILE-BLOCK with the HEADER being the current block's
+selector prepended to the selector of the sub-block.
+
+
+Special handling of blocks may occur. 
+See DEFINE-SPECIAL-BLOCK.")
   (:method (selector fields)
     (let ((selector (compile-selector selector))
           (props ())
@@ -112,6 +194,9 @@
             (nreverse subblocks)))))
 
 (defun compile-sheet (&rest blocks)
+  "Compiles a LASS sheet composed of BLOCKS.
+Each BLOCK is passed to COMPILE-BLOCK. The results thereof are appended
+together into one list of blocks and properties."
   (let ((sheet ()))
     (dolist (block blocks)
       (dolist (resulting-block (compile-block (car block) (cdr block)))
