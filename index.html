@@ -206,13 +206,13 @@ article p a:hover, article blockquote a:hover{
 
 <p>LASS includes a tiny elisp file, <code>lass.el</code>. Add LASS' directory to your emacs <code>LOAD-PATH</code> and <code><a href="http://l1sp.org/cl/require">REQUIRE</a></code> lass.</p>
 
-<pre><code>(add-to-list 'load-path &quot;<path-to-lass-source-dir>/&quot;)
-(<a href="http://l1sp.org/cl/require">require</a> 'lass)
+<pre><code>(add-to-list 'load-path &quot;[path-to-lass-source-dir]/&quot;)
+(<a href="http://l1sp.org/cl/require">require</a> 'lass)</code></pre>
 
-<p>Once you visit a <code>.lass</code> file, it will automatically start in the <code>LASS</code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code>GENERATE</code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code>lass</code> binary</a> must be in your path.</p>
+<p>Once you visit a <code>.lass</code> file, it will automatically start in the <code>LASS</code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code><a href="#LASS:GENERATE">GENERATE</a></code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code>lass</code> binary</a> must be in your path.</p>
 
-<p>If your operating system is not directly supported with a binary, you can build it yourself using a build tool like <a href="http://www.xach.com/lisp/buildapp/">Buildapp</a>, the ASDF system <code>BINARY-LASS</code> and the entry-point <code>BINARY-LASS:CMD-WRAPPER</code>.</p>
-</path-to-lass-source-dir></code></pre></span>
+<p>If your operating system is not directly supported with a binary, you can build it yourself using a build tool like <a href="http://www.xach.com/lisp/buildapp/">Buildapp</a>, the ASDF system <code>BINARY-LASS</code> and the entry-point <code><a href="#BINARY-LASS:CMD-WRAPPER">BINARY-LASS:CMD-WRAPPER</a></code>.</p>
+</span>
         </c:documentate>
       </article>
       <article>
