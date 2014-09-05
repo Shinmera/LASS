@@ -102,27 +102,25 @@ But it can go even further:
     (:nth-child (:or 1 2 3)))
    :display none))
 
-"@media lol{
-    article[data-author=\"yukari\"]:nth-child(1),
-     article[data-author=\"yukari\"]:nth-child(2),
-     article[data-author=\"yukari\"]:nth-child(3),
-     article[data-author=\"ran\"]:nth-child(1),
-     article[data-author=\"ran\"]:nth-child(2),
-     article[data-author=\"ran\"]:nth-child(3),
-     article[data-author=\"chen\"]:nth-child(1),
-     article[data-author=\"chen\"]:nth-child(2),
-     article[data-author=\"chen\"]:nth-child(3),
-     section[data-author=\"yukari\"]:nth-child(1),
-     section[data-author=\"yukari\"]:nth-child(2),
-     section[data-author=\"yukari\"]:nth-child(3),
-     section[data-author=\"ran\"]:nth-child(1),
-     section[data-author=\"ran\"]:nth-child(2),
-     section[data-author=\"ran\"]:nth-child(3),
-     section[data-author=\"chen\"]:nth-child(1),
-     section[data-author=\"chen\"]:nth-child(2),
-     section[data-author=\"chen\"]:nth-child(3){
-        display: none;
-    }
+"article[data-author=\"yukari\"]:nth-child(1),
+ article[data-author=\"yukari\"]:nth-child(2),
+ article[data-author=\"yukari\"]:nth-child(3),
+ article[data-author=\"ran\"]:nth-child(1),
+ article[data-author=\"ran\"]:nth-child(2),
+ article[data-author=\"ran\"]:nth-child(3),
+ article[data-author=\"chen\"]:nth-child(1),
+ article[data-author=\"chen\"]:nth-child(2),
+ article[data-author=\"chen\"]:nth-child(3),
+ section[data-author=\"yukari\"]:nth-child(1),
+ section[data-author=\"yukari\"]:nth-child(2),
+ section[data-author=\"yukari\"]:nth-child(3),
+ section[data-author=\"ran\"]:nth-child(1),
+ section[data-author=\"ran\"]:nth-child(2),
+ section[data-author=\"ran\"]:nth-child(3),
+ section[data-author=\"chen\"]:nth-child(1),
+ section[data-author=\"chen\"]:nth-child(2),
+ section[data-author=\"chen\"]:nth-child(3){
+    display: none;
 }"
 ```
 
