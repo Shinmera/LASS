@@ -20,5 +20,6 @@
   :components ((:file "package")
                (:file "compiler")
                (:file "writer")
-               (:file "lass"))
+               (:file "lass")
+               (:file "special"))
   :depends-on ())

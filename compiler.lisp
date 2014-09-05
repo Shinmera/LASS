@@ -20,14 +20,20 @@
      (string-downcase thing))
     (T (princ-to-string thing))))
 
+(defun make-attribute (attr &optional val)
+  (list :attribute attr val))
+
+(defun make-block (selector vals)
+  (cons :block (cons selector vals)))
+
 (defgeneric compile-attribute (key value)
   (:method (key (value list))
-    (list (list :attribute
+    (list (make-attribute
                 (string-downcase key)
                 (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
 
   (:method (key value)
-    (list (list :attribute
+    (list (make-attribute
                 (resolve key)
                 (resolve value)))))
 
@@ -100,7 +106,7 @@
                    (T (push field attr)))
               finally (add-attr attr)))
       ;; Returns list of blocks with ours consed to front
-      (cons (cons :block (cons selector (nreverse attrs)))
+      (cons (make-block selector (nreverse attrs))
             (nreverse subblocks)))))
 
 (defun compile-sheet (&rest blocks)
