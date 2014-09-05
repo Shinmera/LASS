@@ -10,6 +10,8 @@
 
 (defun resolve (thing)
   (typecase thing
+    (null
+     NIL)
     (string
      thing)
     (array
