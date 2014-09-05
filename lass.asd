@@ -10,11 +10,11 @@
 
 (defsystem lass
   :name "LASS"
-  :version "0.0.1"
+  :version "0.1.1"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
-  :description ""
+  :description "Lisp Augmented Style Sheets. Compiles LASS to CSS."
   :homepage "https://github.com/Shinmera/LASS"
   :serial T
   :components ((:file "package")
