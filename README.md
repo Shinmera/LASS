@@ -200,7 +200,7 @@ Emacs Support
 LASS includes a tiny elisp file, `lass.el`. Add LASS' directory to your emacs `LOAD-PATH` and `REQUIRE` lass.
 
 ```
-(add-to-list 'load-path "<path-to-lass-source-dir>/")
+(add-to-list 'load-path "[path-to-lass-source-dir]/")
 (require 'lass)
 ```
 
