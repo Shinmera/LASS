@@ -26,4 +26,4 @@
               (asdf:system-homepage (asdf:find-system :LASS)))))
 
 (defun cmd-wrapper (args)
-  (apply #'main (cddr args)))
+  (apply #'main (cdr args)))
