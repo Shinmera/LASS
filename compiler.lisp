@@ -22,20 +22,20 @@
      (string-downcase thing))
     (T (princ-to-string thing))))
 
-(defun make-attribute (attr &optional val)
-  (list :attribute attr val))
+(defun make-property (property &optional value)
+  (list :property property value))
 
-(defun make-block (selector vals)
-  (cons :block (cons selector vals)))
+(defun make-block (selector values)
+  (cons :block (cons selector values)))
 
-(defgeneric compile-attribute (key value)
+(defgeneric compile-property (key value)
   (:method (key (value list))
-    (list (make-attribute
+    (list (make-property
                 (string-downcase key)
                 (format NIL "~{~a~^ ~}" (mapcar #'resolve value)))))
 
   (:method (key value)
-    (list (make-attribute
+    (list (make-property
                 (resolve key)
                 (resolve value)))))
 
@@ -88,27 +88,27 @@
 (defgeneric compile-block (header fields)
   (:method (selector fields)
     (let ((selector (compile-selector selector))
-          (attrs ())
+          (props ())
           (subblocks ()))
-      ;; compute attrs and subblocks
-      (flet ((add-attr (attr)
-               (when attr
-                 (let ((attr (nreverse attr)))
-                   (dolist (attr (compile-attribute (car attr) (cdr attr)))
-                     (push attr attrs))))))
-        (loop with attr = ()
+      ;; compute props and subblocks
+      (flet ((add-prop (prop)
+               (when prop
+                 (let ((prop (nreverse prop)))
+                   (dolist (prop (compile-property (car prop) (cdr prop)))
+                     (push prop props))))))
+        (loop with prop = ()
               for field in fields
               do (etypecase field
                    (keyword
-                    (add-attr attr)
-                    (setf attr (list field)))
+                    (add-prop prop)
+                    (setf prop (list field)))
                    (list
                     (dolist (subblock (compile-block (list selector (car field)) (cdr field)))
                       (push subblock subblocks)))
-                   (T (push field attr)))
-              finally (add-attr attr)))
+                   (T (push field prop)))
+              finally (add-prop prop)))
       ;; Returns list of blocks with ours consed to front
-      (cons (make-block selector (nreverse attrs))
+      (cons (make-block selector (nreverse props))
             (nreverse subblocks)))))
 
 (defun compile-sheet (&rest blocks)

@@ -7,14 +7,21 @@
 (in-package #:org.tymoonnext.lass)
 
 (defmacro define-special-block (name args &body body)
+  "Define handling of a special block type.
+In order for the block to be recognised, it has to begin with the NAME as a keyword.
+
+The ARGS is a lambda-list that parses the block contents.
+
+Expected as a return value is a /list/ of either attributes or blocks."
   (let ((argsym (gensym "ARGS")))
     `(defmethod compile-block ((,(gensym "TYPE") (eql ,(intern (string name) "KEYWORD"))) ,argsym)
        (destructuring-bind ,args ,argsym
          ,@body))))
 
-(defmacro define-special-attribute (name args &body body)
+(defmacro define-special-property (name args &body body)
+  "Define handling of a special property type."
   (let ((argsym (gensym "ARGS")))
-    `(defmethod compile-attribute ((,(gensym "ATTR") (eql ,(intern (string name) "KEYWORD"))) ,argsym)
+    `(defmethod compile-property ((,(gensym "ATTR") (eql ,(intern (string name) "KEYWORD"))) ,argsym)
        (destructuring-bind ,args ,argsym
          ,@body))))
 

@@ -9,7 +9,7 @@
 ;;; BLOCKS
 
 (define-special-block charset (charset)
-  (list (list :attribute (format NIL "@charset ~a" (resolve charset)))))
+  (list (list :property (format NIL "@charset ~a" (resolve charset)))))
 
 (define-special-block document (selector &rest body)
   (let ((inner (apply #'compile-sheet body)))
@@ -21,7 +21,7 @@
   (compile-block "@font-face" body))
 
 (define-special-block import (url &rest media-queries)
-  (list (make-attribute
+  (list (make-property
          (format NIL "@import ~a~{ ~a~}"
                  (resolve url)
                  (mapcar #'resolve media-queries)))))
@@ -39,7 +39,7 @@
            inner))))
 
 (define-special-block namespace (prefix/namespace &optional namespace)
-  (list (make-attribute
+  (list (make-property
          (format NIL "@namespace ~a~@[ ~a~]"
                  (resolve prefix/namespace)
                  (when namespace (resolve namespace))))))
@@ -102,11 +102,11 @@
 
 ;;; ATTRIBUTES
 
-(define-special-attribute font-family (&rest faces)
-  (list (make-attribute "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
+(define-special-property font-family (&rest faces)
+  (list (make-property "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
 
-(defmacro define-browser-attribute (name args &body browser-options)
-  `(define-special-attribute ,name ,args
+(defmacro define-browser-property (name args &body browser-options)
+  `(define-special-property ,name ,args
      (list ,@(loop for (browser prefix) in '((:moz "-moz-")
                                              (:o "-o-")
                                              (:webkit "-webkit-")
@@ -117,54 +117,54 @@
                    collect `(let ((,(caadr body) ,(format NIL "~a~a" prefix (string-downcase name))))
                               ,@(cddr body))))))
 
-(indent:define-indentation define-browser-attribute (4 6 &rest (&whole 2 0 4 2)))
+(indent:define-indentation define-browser-property (4 6 &rest (&whole 2 0 4 2)))
 
-(define-browser-attribute linear-gradient (direction &rest colors)
-  (:default (attribute)
-    (make-attribute "background" (format NIL "~a(~a~{, ~a ~a~})"
-                                         attribute (resolve direction) (mapcar #'resolve colors)))))
+(define-browser-property linear-gradient (direction &rest colors)
+  (:default (property)
+    (make-property "background" (format NIL "~a(~a~{, ~a ~a~})"
+                                         property (resolve direction) (mapcar #'resolve colors)))))
 
-(define-browser-attribute radial-gradient (shape size position &rest colors)
-  (:default (attribute)
-    (make-attribute "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
-                                         attribute (resolve shape) (resolve size) (resolve position) (mapcar #'resolve colors)))))
+(define-browser-property radial-gradient (shape size position &rest colors)
+  (:default (property)
+    (make-property "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
+                                         property (resolve shape) (resolve size) (resolve position) (mapcar #'resolve colors)))))
 
-(define-browser-attribute repeating-radial-gradient (shape size position &rest colors)
-  (:default (attribute)
-    (make-attribute "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
-                                         attribute (resolve shape) (resolve size) (resolve position) (resolve colors)))))
+(define-browser-property repeating-radial-gradient (shape size position &rest colors)
+  (:default (property)
+    (make-property "background" (format NIL "~a(~a ~a at ~a~{, ~a ~a~})"
+                                         property (resolve shape) (resolve size) (resolve position) (resolve colors)))))
 
-(define-browser-attribute transform (value/function &rest function-args)
-  (:default (attribute)
-    (make-attribute attribute (format NIL "~a~@[(~{~a~^, ~})~]"
+(define-browser-property transform (value/function &rest function-args)
+  (:default (property)
+    (make-property property (format NIL "~a~@[(~{~a~^, ~})~]"
                                       (resolve value/function) (resolve function-args)))))
 
-(define-browser-attribute transform-origin (value/x &optional y z)
-  (:default (attribute)
-    (make-attribute attribute (format NIL "~a~@[ ~a~]~@[ ~a~]"
+(define-browser-property transform-origin (value/x &optional y z)
+  (:default (property)
+    (make-property property (format NIL "~a~@[ ~a~]~@[ ~a~]"
                                       (resolve value/x) (resolve y) (resolve z)))))
 
-(define-browser-attribute transform-style (style)
-  (:default (attribute)
-    (make-attribute attribute (resolve style))))
+(define-browser-property transform-style (style)
+  (:default (property)
+    (make-property property (resolve style))))
 
-(define-browser-attribute transition (value/property &optional duration timing-function &rest function-args)
-  (:default (attribute)
-    (make-attribute attribute (format NIL "~a~@[ ~a~]~:[~*~;~:* ~a~@[(~{~a~^, ~})~]~]"
+(define-browser-property transition (value/property &optional duration timing-function &rest function-args)
+  (:default (property)
+    (make-property property (format NIL "~a~@[ ~a~]~:[~*~;~:* ~a~@[(~{~a~^, ~})~]~]"
                                       (resolve value/property) (resolve duration) (resolve timing-function) (mapcar #'resolve function-args)))))
 
-(define-browser-attribute transition-delay (value)
-  (:default (attribute)
-    (make-attribute attribute (resolve value))))
+(define-browser-property transition-delay (value)
+  (:default (property)
+    (make-property property (resolve value))))
 
-(define-browser-attribute transition-duration (value)
-  (:default (attribute)
-    (make-attribute attribute (resolve value))))
+(define-browser-property transition-duration (value)
+  (:default (property)
+    (make-property property (resolve value))))
 
-(define-browser-attribute transition-property (value)
-  (:default (attribute)
-    (make-attribute attribute (resolve value))))
+(define-browser-property transition-property (value)
+  (:default (property)
+    (make-property property (resolve value))))
 
-(define-browser-attribute transition-timing-function (value/function &rest function-args)
-  (:default (attribute)
-    (make-attribute attribute (format NIL "~a~@[(~{~a~^, ~})~]" (resolve value/function) (mapcar #'resolve function-args)))))
+(define-browser-property transition-timing-function (value/function &rest function-args)
+  (:default (property)
+    (make-property property (format NIL "~a~@[(~{~a~^, ~})~]" (resolve value/function) (mapcar #'resolve function-args)))))

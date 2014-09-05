@@ -9,10 +9,10 @@
 (defvar *pretty* T)
 (defvar *indent-level* 0)
 
-;; SHEET      ::= (BLOCK*)
-;; BLOCK      ::= (:BLOCK SELECTOR ATTRIBUTE*)
-;; SELECTOR   ::= (string*)
-;; ATTRIBUTE  ::= (:ATTRIBUTE string string)
+;; SHEET     ::= (BLOCK*)
+;; BLOCK     ::= (:BLOCK SELECTOR PROPERTY*)
+;; SELECTOR  ::= (string*)
+;; PROPERTY  ::= (:PROPERTY string string)
 
 (defun indent ()
   (make-string (if *pretty* *indent-level* 0) :initial-element #\Space))
@@ -25,7 +25,7 @@
             (*indent-level* (+ *indent-level* 4)))
         (format stream true-format
                 (car block) (cdr block)))))
-  (:method ((type (eql :attribute)) attribute stream)
+  (:method ((type (eql :property)) attribute stream)
     (when attribute
       (format stream (format NIL "~a~~a~~@[:~@[~* ~]~~a~~];" (indent) *pretty*)
               (first attribute) (second attribute)))))
