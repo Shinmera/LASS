@@ -194,3 +194,16 @@ Pretty much every part of LASS is extensible through methods. Most useful will h
 ```
 
 For more control, have a look at the various `COMPILE-*` generic functions.
+
+Emacs Support
+-------------
+LASS includes a tiny elisp file, `lass.el`. Add LASS' directory to your emacs `LOAD-PATH` and `REQUIRE` lass.
+
+```
+(add-to-list 'load-path "<path-to-lass-source-dir>/")
+(require 'lass)
+```
+
+Once you visit a `.lass` file, it will automatically start in the `LASS` major-mode, which is a derived-mode from `COMMON-LISP-MODE`. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate `GENERATE`. If slime is not connected, it instead executes a shell command. In order for that to work, the [`lass` binary](https://github.com/Shinmera/LASS/releases) must be in your path.
+
+If your operating system is not directly supported with a binary, you can build it yourself using a build tool like [Buildapp](http://www.xach.com/lisp/buildapp/), the ASDF system `BINARY-LASS` and the entry-point `BINARY-LASS:CMD-WRAPPER`.

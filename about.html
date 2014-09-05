@@ -19,7 +19,7 @@
   <body>
     <header>
       <h1>lass</h1>
-      <span>0.1.1</span>
+      <span>0.2.0</span>
       <p>Lisp Augmented Style Sheets. Compiles LASS to CSS.</p>
     </header>
     <div id="content">
@@ -201,7 +201,18 @@ article p a:hover, article blockquote a:hover{
                                          property (<a href="#LASS:RESOLVE">resolve</a> direction) (<a href="http://l1sp.org/cl/mapcar">mapcar</a> #'resolve colors)))))</code></pre>
 
 <p>For more control, have a look at the various <code>COMPILE-*</code> generic functions.</p>
-</span>
+
+<h2>Emacs Support</h2>
+
+<p>LASS includes a tiny elisp file, <code>lass.el</code>. Add LASS' directory to your emacs <code>LOAD-PATH</code> and <code><a href="http://l1sp.org/cl/require">REQUIRE</a></code> lass.</p>
+
+<pre><code>(add-to-list 'load-path &quot;<path-to-lass-source-dir>/&quot;)
+(<a href="http://l1sp.org/cl/require">require</a> 'lass)
+
+<p>Once you visit a <code>.lass</code> file, it will automatically start in the <code>LASS</code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code>GENERATE</code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code>lass</code> binary</a> must be in your path.</p>
+
+<p>If your operating system is not directly supported with a binary, you can build it yourself using a build tool like <a href="http://www.xach.com/lisp/buildapp/">Buildapp</a>, the ASDF system <code>BINARY-LASS</code> and the entry-point <code>BINARY-LASS:CMD-WRAPPER</code>.</p>
+</path-to-lass-source-dir></code></pre></span>
         </c:documentate>
       </article>
       <article>
@@ -588,6 +599,38 @@ See COMPILE-CONSTRAINT.</pre>
                   <pre>Special variable containing LASS-environment variables.
 
 See the definition of the LET block.</pre>
+                </article>
+              </li></ul>
+          </li><li class="package">
+            <h3>
+              <a name="BINARY-LASS" href="#BINARY-LASS">BINARY-LASS</a>
+              <span class="nicknames">(ORG.TYMOONNEXT.LASS.BIANRY)</span>
+            </h3>
+            <ul><li>
+                <a name="BINARY-LASS:CMD-WRAPPER"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#BINARY-LASS:CMD-WRAPPER">CMD-WRAPPER</a></h4>
+                      <span/>
+                      <span>(ARGS)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="BINARY-LASS:MAIN"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#BINARY-LASS:MAIN">MAIN</a></h4>
+                      <span/>
+                      <span>(&amp;OPTIONAL IN OUT (PRETTY false))</span>
+                    </code>
+                  </header>
+                  <pre/>
                 </article>
               </li></ul>
           </li></ul>
