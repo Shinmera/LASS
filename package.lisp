@@ -23,7 +23,8 @@
    #:define-special-block
    #:define-special-attribute
    #:define-special-selector
-   #:generate)
+   #:generate
+   #:compile-and-write)
   ;; special.lisp
   (:export
    #:define-single-arg-selector

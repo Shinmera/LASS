@@ -63,3 +63,9 @@ Returns OUT"
                       collect read)))
        :stream outstream :pretty pretty))
     out))
+
+(defun compile-and-write (&rest forms)
+  "Shortcut for (WRITE-SHEET (COMPILE-SHEET FORMS*))"
+  (write-sheet
+   (apply #'compile-sheet
+          forms)))
