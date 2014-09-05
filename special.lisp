@@ -148,10 +148,10 @@
   (:default (attribute)
     (make-attribute attribute (resolve style))))
 
-(define-browser-attribute transition (value/property &optional duration timing-function delay)
+(define-browser-attribute transition (value/property &optional duration timing-function &rest function-args)
   (:default (attribute)
-    (make-attribute attribute (format NIL "~a~@[ ~a~]~@[ ~a~]~@[ ~a~]"
-                                      (resolve value/property) (resolve duration) (resolve timing-function) (resolve delay)))))
+    (make-attribute attribute (format NIL "~a~@[ ~a~]~:[~*~;~:* ~a~@[(~{~a~^, ~})~]~]"
+                                      (resolve value/property) (resolve duration) (resolve timing-function) (mapcar #'resolve function-args)))))
 
 (define-browser-attribute transition-delay (value)
   (:default (attribute)
