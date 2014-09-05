@@ -52,7 +52,7 @@ Calls WRITE-SHEET-OBJECT with (CAR BLOCK) (CDR BLOCK) STREAM."
   (declare (ignore cp ap))
   (write-sheet-object (car block) (cdr block) stream))
 
-(defun write-sheet (sheet &key (stream T) (pretty *pretty*))
+(defun write-sheet (sheet &key (stream NIL) (pretty *pretty*))
   "Writes the compiled SHEET object to STREAM.
 If PRETTY is non-NIL, spaces and newlines are inserted as appropriate
 in order to create a human-readable stylesheet. Otherwise whitespace is
