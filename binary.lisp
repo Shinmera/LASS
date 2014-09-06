@@ -25,5 +25,11 @@
               (asdf:component-version (asdf:find-system :LASS))
               (asdf:system-homepage (asdf:find-system :LASS)))))
 
-(defun cmd-wrapper (args)
-  (apply #'main (cdr args)))
+(defun cmd-wrapper (&optional args)
+  (let ((args (or args
+                  #+SBCL *posix-argv*  
+                  #+LISPWORKS system:*line-arguments-list*
+                  #+CMU extensions:*command-line-words*
+                  #+CCL ccl:*command-line-argument-list*
+                  NIL)))
+    (apply #'main (cdr args))))
