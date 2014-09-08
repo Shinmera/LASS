@@ -32,4 +32,7 @@
                   #+CMU extensions:*command-line-words*
                   #+CCL ccl:*command-line-argument-list*
                   NIL)))
-    (apply #'main (cdr args))))
+    (handler-case
+        (apply #'main (cdr args))
+      (error (err)
+        (format T "ERROR: ~a" err)))))
