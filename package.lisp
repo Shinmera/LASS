@@ -21,14 +21,14 @@
   ;; lass.lisp
   (:export
    #:define-special-block
-   #:define-special-attribute
+   #:define-special-property
    #:define-special-selector
    #:generate
    #:compile-and-write)
   ;; special.lisp
   (:export
    #:define-single-arg-selector
-   #:define-browser-attribute)
+   #:define-browser-property)
   ;; writer.lisp
   (:export
    #:*pretty*

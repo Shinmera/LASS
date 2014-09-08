@@ -181,7 +181,7 @@ As mentioned above you can write pure LASS files to compile down to a CSS file. 
 
 Extending LASS
 --------------
-Pretty much every part of LASS is extensible through methods. Most useful will however probably be the `DEFINE-SPECIAL-PROPERTY`, `DEFINE-BROWSER-PROPERY` and `DEFINE-SPECIAL-SELECTOR` helper-macros. Here's some examples from the `SPECIAL.LISP` file that defines some standard special handlers:
+Pretty much every part of LASS is extensible through methods. Most useful will however probably be the `DEFINE-SPECIAL-PROPERTY`, `DEFINE-BROWSER-PROPERTY` and `DEFINE-SPECIAL-SELECTOR` helper-macros. Here's some examples from the `SPECIAL.LISP` file that defines some standard special handlers:
 
 ```
 (define-special-property font-family (&rest faces)
