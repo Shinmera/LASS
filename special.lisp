@@ -184,3 +184,7 @@ is used as a fallback."
   (:default (property)
     (make-property property (format NIL "~a~@[(~{~a~^, ~})~]"
                                     (resolve value/function) (mapcar #'resolve function-args)))))
+
+(define-browser-property user-select (value)
+  (:default (property)
+    (make-property property (resolve value))))
