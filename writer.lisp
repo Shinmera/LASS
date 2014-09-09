@@ -41,10 +41,15 @@ if *PRETTY* is non-NIL.")
             (*indent-level* (+ *indent-level* 4)))
         (format stream true-format
                 (car block) (cdr block)))))
+
   (:method ((type (eql :property)) attribute stream)
     (when attribute
       (format stream (format NIL "~a~~a~~@[:~@[~* ~]~~a~~];" (indent) *pretty*)
-              (first attribute) (second attribute)))))
+              (first attribute) (second attribute))))
+
+  (:method ((type (eql :text)) block stream)
+    (when block
+      (format stream "~{~a~}~@[~*~%~]" block *pretty*))))
 
 (defun write-sheet-part (stream block cp ap)
   "Wrapper around WRITE-SHEET-OBJECT so that we can call it from FORMAT.
