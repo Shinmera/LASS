@@ -11,6 +11,14 @@
 
 See the definition of the LET block.")
 
+(defun read-to-vector (file)
+  (with-open-file (stream file :element-type '(unsigned-byte 8))
+    (let ((length (file-length stream)))
+      (assert length)
+      (let ((result (make-array length :element-type '(unsigned-byte 8))))
+        (read-sequence result stream)
+        result))))
+
 (defgeneric resolve (thing)
   (:documentation "Resolves THING to a value that makes sense for LASS.
 
@@ -31,6 +39,14 @@ T:       PRINC-TO-STRING of THING")
     (if (keywordp thing)
         (format NIL ":~a" (string-downcase thing))
         (string-downcase thing)))
+  (:method ((file pathname))
+    (let ((type (mimes:mime-lookup file)))
+      (if (and (< 5 (length type))
+               (string= type "image" :end1 5))
+          (format NIL "url('data:~a;base64,~a')"
+                  type (base64:usb8-array-to-base64-string
+                        (read-to-vector file)))
+          (error "Don't know how to resolve files of type ~a" (or type file)))))
   (:method ((thing T))
     (princ-to-string thing)))
 

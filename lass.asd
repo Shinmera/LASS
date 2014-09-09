@@ -22,4 +22,6 @@
                (:file "writer")
                (:file "lass")
                (:file "special"))
-  :depends-on (:trivial-indent))
+  :depends-on (:trivial-indent
+               :trivial-mimes
+               :cl-base64))
