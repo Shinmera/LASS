@@ -22,7 +22,7 @@
 
 (define-special-block import (url &rest media-queries)
   (list (make-property
-         (format NIL "@import ~a~{ ~a~}"
+         (format NIL "@import ~S~{ ~a~}"
                  (resolve url)
                  (mapcar #'resolve media-queries)))))
 
