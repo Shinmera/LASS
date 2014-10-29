@@ -201,3 +201,25 @@ is used as a fallback."
 (define-browser-property user-select (value)
   (:default (property)
     (make-property property (resolve value))))
+
+(define-simple-property-functions :filter
+    (url (url))
+  (blur (radius))
+  (brightness (value))
+  (contrast (value))
+  (drop-shadow (x y &optional blur spread color))
+  (grayscale (value))
+  (hue-rotate (value))
+  (invert (value))
+  (opacity (value))
+  (saturate (value))
+  (sepia (value)))
+
+(define-browser-property filter (&rest args)
+  (:default (property)
+    (make-property property (format NIL "~{~a~^ ~}" (mapcar #'resolve args)))))
+
+(define-browser-property box-shadow (x y &optional blur spread color)
+  (:default (property)
+    (make-property property (format NIL "~a ~a~@[ ~a~]~@[ ~a~]~@[ ~a~]"
+                                    (resolve x) (resolve y) (resolve blur) (resolve spread) (resolve color)))))
