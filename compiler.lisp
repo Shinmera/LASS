@@ -166,6 +166,22 @@ Returns a list with the RESOLVEd SELECTOR.")
     (list (resolve selector))))
 
 (defgeneric consume-item (item readable-list)
+  (:documentation "Consumes items from READABLE-LIST as required by the ITEM.
+Returned should be two values, the first being a property to compile (or NIL)
+and the second a block to compile (or NIL).
+By default, the following cases are handled:
+
+ (LIST)
+Simply returns the ITEM as a block.
+
+ (SYMBOL)
+If it's a keyword, reads until the next keyword or list and returns that as a
+property to compile. With property-functions, some sublists may also be read
+in automatically. See DEFINE-PROPERTY-FUNCTION. If it is a regular symbol,
+CALL-NEXT-METHOD is invoked.
+
+ (T)
+Signals an error.")
   (:method (thing readable-list)
     (error "Don't know what to do with ~s (not part of a property)." thing))
   (:method ((subblock list) readable-list)

@@ -16,6 +16,7 @@
    #:compile-property
    #:compile-constraint
    #:compile-selector
+   #:consume-item
    #:compile-block
    #:compile-sheet)
   ;; lass.lisp
@@ -25,6 +26,13 @@
    #:define-special-selector
    #:generate
    #:compile-and-write)
+  ;; property-funcs.lisp
+  (:export
+   #:property-function
+   #:remove-property-function
+   #:define-property-function
+   #:define-simple-property-function
+   #:resolve-function)
   ;; special.lisp
   (:export
    #:define-single-arg-selector
