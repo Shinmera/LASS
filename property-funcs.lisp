@@ -124,16 +124,22 @@ You can use (RETURN) in a clause body to stop reading values altogether."
                                                        collect `(string-equal (car ,next) ,(string alt))))
                                            ,@forms)))))
             (if ,result
-                (progn (push ,result propvals) (advance ,readable))
+                (progn (push ,result ,propvals) (advance ,readable))
                 (return))))
          (T (push (consume ,readable) ,propvals))))))
 
 (defmacro define-simple-property-functions (property &rest funcspecs)
+  "Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCSPECS ::= funcspec*
+FUNCSPEC  ::= (funcname arg* [&optional arg*] [&key arg*])
+
+See DEFINE-PROPERTY-FUNCTION-CASE."
   (let ((arglist (gensym "ARGLIST")))
     `(define-property-function-case ,property (,arglist)
        ,@(loop for (name args) in funcspecs
-               do (assert (loop for key in '(&key &optional &rest &allow-other-keys)
-                                never (find key args)) () "Only required arguments are allowed.")
                collect `(,name (destructuring-bind ,args ,arglist
-                                 (format NIL ,(format NIL "~(~a~)(~{~*~~a~^,~})" name args)
-                                         ,@(loop for arg in args collect `(resolve ,arg)))))))))
+                                 (format NIL ,(format NIL "~(~a~)(~~a~~@{~~@[,~~a~~]~~})" name)
+                                         ,@(loop for arg in args
+                                                 unless (find arg '(&optional &key))
+                                                 collect `(resolve ,arg)))))))))
