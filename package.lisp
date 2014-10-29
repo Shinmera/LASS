@@ -34,7 +34,8 @@
    #:define-simple-property-function
    #:resolve-function
    #:define-primitive-property-consumer
-   #:define-property-function-case)
+   #:define-property-function-case
+   #:define-simple-property-functions)
   ;; special.lisp
   (:export
    #:define-single-arg-selector

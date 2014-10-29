@@ -98,7 +98,7 @@ for example for when you encounter an item you don't want to read."
           (cons ,property (nreverse ,propvals)))
         NIL))))
 
-(defmacro define-property-function-case (property (args) &rest function-clauses)
+(defmacro define-property-function-case (property (args) &body function-clauses)
   "Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
 
 FUNCTION-CLAUSES ::= function-clause*
@@ -119,8 +119,21 @@ You can use (RETURN) in a clause body to stop reading values altogether."
           (let* ((,args (cdr ,next))
                  (,result
                    (cond ,@(loop for (func . forms) in function-clauses
-                                 collect `((string-equal (car ,next) ,func) ,@forms)))))
+                                 for alternatives = (if (listp func) func (list func))
+                                 collect `((or ,@(loop for alt in alternatives
+                                                       collect `(string-equal (car ,next) ,(string alt))))
+                                           ,@forms)))))
             (if ,result
                 (progn (push ,result propvals) (advance ,readable))
                 (return))))
          (T (push (consume ,readable) ,propvals))))))
+
+(defmacro define-simple-property-functions (property &rest funcspecs)
+  (let ((arglist (gensym "ARGLIST")))
+    `(define-property-function-case ,property (,arglist)
+       ,@(loop for (name args) in funcspecs
+               do (assert (loop for key in '(&key &optional &rest &allow-other-keys)
+                                never (find key args)) () "Only required arguments are allowed.")
+               collect `(,name (destructuring-bind ,args ,arglist
+                                 (format NIL ,(format NIL "~(~a~)(~{~*~~a~^,~})" name args)
+                                         ,@(loop for arg in args collect `(resolve ,arg)))))))))
