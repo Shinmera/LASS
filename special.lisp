@@ -15,8 +15,8 @@
     url (url)
     rgb (red green blue)
     rgba (red green blue alpha)
-    hsv (hue saturation value)
-    hsva (hue saturation value alpha)))
+    hsl (hue saturation lightness)
+    hsla (hue saturation lightness alpha)))
 (define-property-function hex (hex) (format NIL "#~a" hex))
 
 ;;; BLOCKS
