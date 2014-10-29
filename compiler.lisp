@@ -23,12 +23,13 @@ See the definition of the LET block.")
   (:documentation "Resolves THING to a value that makes sense for LASS.
 
 By default the following types are handled:
-NULL:    NIL
-STRING:  the THING itself
-ARRAY:   the variable stored in *VARS* under THING
-KEYWORD: Colon-prefixed, downcased symbol-name of THING
-SYMBOL:  Downcased symbol-name of THING
-T:       PRINC-TO-STRING of THING")
+NULL:     NIL
+STRING:   the THING itself
+ARRAY:    the variable stored in *VARS* under THING
+KEYWORD:  Colon-prefixed, downcased symbol-name of THING
+SYMBOL:   Downcased symbol-name of THING
+PATHNAME: If designating an image, base64 encoded inline image data.
+T:        PRINC-TO-STRING of THING")
   (:method ((thing null))
     NIL)
   (:method ((thing string))
@@ -164,6 +165,27 @@ Returns a list with the RESOLVEd SELECTOR.")
   (:method ((selector T))
     (list (resolve selector))))
 
+(defgeneric consume-item (item readable-list)
+  (:method (thing readable-list)
+    (error "Don't know what to do with ~s (not part of a property)." thing))
+  (:method ((subblock list) readable-list)
+    (values
+     NIL
+     subblock))
+  (:method ((property symbol) readable-list)
+    (if (keywordp property)
+        (values
+         (let ((propvals ()))
+           (loop for (next fullp) = (multiple-value-list (peek readable-list))
+                 while fullp
+                 do (etypecase next
+                      (keyword (return))
+                      (list (return))
+                      (T (push (consume readable-list) propvals))))
+           (cons property (nreverse propvals)))
+         NIL)
+        (call-next-method))))
+
 (defgeneric compile-block (header fields)
   (:documentation "Compiles the block with given HEADER and FIELDS list.
 By default, the following case is handled:
@@ -186,28 +208,25 @@ Special handling of blocks may occur.
 See DEFINE-SPECIAL-BLOCK.")
   (:method (selector fields)
     (let ((selector (compile-selector selector))
+          (readable (make-readable-list fields))
           (props ())
-          (subblocks ()))
-      ;; compute props and subblocks
+          (blocks ()))
+      ;; compute props and blocks
       (flet ((add-prop (prop)
                (when prop
-                 (let ((prop (nreverse prop)))
-                   (dolist (prop (compile-property (car prop) (cdr prop)))
-                     (push prop props))))))
-        (loop with prop = ()
-              for field in fields
-              do (etypecase field
-                   (keyword
-                    (add-prop prop)
-                    (setf prop (list field)))
-                   (list
-                    (dolist (subblock (compile-block (list selector (car field)) (cdr field)))
-                      (push subblock subblocks)))
-                   (T (push field prop)))
-              finally (add-prop prop)))
+                 (dolist (prop (compile-property (car prop) (cdr prop)))
+                   (push prop props))))
+             (add-block (block)
+               (when block
+                 (dolist (block (compile-block (list selector (car block)) (cdr block)))
+                   (push block blocks)))))
+        (loop until (empty-p readable)
+              for (prop block) = (multiple-value-list (consume-item (consume readable) readable))
+              do (add-prop prop)
+                 (add-block block)))
       ;; Returns list of blocks with ours consed to front
       (cons (make-block selector (nreverse props))
-            (nreverse subblocks)))))
+            (nreverse blocks)))))
 
 (defun compile-sheet (&rest blocks)
   "Compiles a LASS sheet composed of BLOCKS.

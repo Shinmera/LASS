@@ -6,6 +6,19 @@
 
 (in-package #:org.tymoonnext.lass)
 
+;;; FUNCS
+(macrolet ((define-properties (&rest rest)
+             `(progn
+                ,@(loop for (name args) on rest by #'cddr
+                        collect `(define-simple-property-function ,name ,args)))))
+  (define-properties
+    url (url)
+    rgb (red green blue)
+    rgba (red green blue alpha)
+    hsv (hue saturation value)
+    hsva (hue saturation value alpha)))
+(define-property-function hex (hex) (format NIL "#~a" hex))
+
 ;;; BLOCKS
 
 (define-special-block charset (charset)

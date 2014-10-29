@@ -10,7 +10,7 @@
 
 (defsystem lass
   :name "LASS"
-  :version "0.2.0"
+  :version "0.3.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
@@ -18,7 +18,9 @@
   :homepage "https://github.com/Shinmera/LASS"
   :serial T
   :components ((:file "package")
+               (:file "readable-list")
                (:file "compiler")
+               (:file "property-funcs")
                (:file "writer")
                (:file "lass")
                (:file "special"))
