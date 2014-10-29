@@ -64,7 +64,7 @@ Only required arguments are allowed."
          (let ((propvals ()))
            (loop for (next fullp) = (multiple-value-list (peek readable-list))
                  while fullp
-                 do (etypecase next
+                 do (typecase next
                       (keyword (return))
                       (list
                        (let ((resolver (property-function (car next))))
@@ -75,3 +75,52 @@ Only required arguments are allowed."
            (cons property (nreverse propvals)))
          NIL)
         (call-next-method)))
+
+(defmacro define-primitive-property-consumer (specializer (propvals readable next) &body loop-body)
+  "Defines a CONSUME-ITEM method for the given item SPECIALIZER.
+
+SPECIALIZER --- The method specializer for the item.
+PROPVALS    --- The list that should contain the property values.
+READABLE    --- The readable-list being operated on currently.
+NEXT        --- Bound to the next (unconsumed) item in the readable-list.
+LOOP-BODY   --- The body of the reading loop to execute until the readable is empty.
+
+The return value of the loop-body is discarded. You can use (RETURN) to exit the loop,
+for example for when you encounter an item you don't want to read."
+  (let ((property (gensym "PROPERTY"))
+        (fullp (gensym "FULLP")))
+    `(defmethod consume-item ((,property ,specializer) ,readable)
+       (values
+        (let ((,propvals ()))
+          (loop for (,next ,fullp) = (multiple-value-list (peek ,readable))
+                while ,fullp
+                do (progn ,@loop-body))
+          (cons ,property (nreverse ,propvals)))
+        NIL))))
+
+(defmacro define-property-function-case (property (args) &rest function-clauses)
+  "Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCTION-CLAUSES ::= function-clause*
+FUNCTION-CLAUSE  ::= (function-name form*)
+
+Each function-name is compared by STRING-EQUAL and each clause should return the
+property-value to use in its place, or NIL if it should be skipped.
+
+You can use (RETURN) in a clause body to stop reading values altogether."
+  (let ((propvals (gensym "PROPVALS"))
+        (readable (gensym "READABLE"))
+        (next (gensym "NEXT"))
+        (result (gensym "RESULT")))
+    `(define-primitive-property-consumer (eql ,property) (,propvals ,readable ,next)
+       (typecase ,next
+         (keyword (return))
+         (list
+          (let* ((,args (cdr ,next))
+                 (,result
+                   (cond ,@(loop for (func . forms) in function-clauses
+                                 collect `((string-equal (car ,next) ,func) ,@forms)))))
+            (if ,result
+                (progn (push ,result propvals) (advance ,readable))
+                (return))))
+         (T (push (consume ,readable) ,propvals))))))
