@@ -67,10 +67,12 @@ Only required arguments are allowed."
                  do (typecase next
                       (keyword (return))
                       (list
-                       (let ((resolver (property-function (car next))))
-                         (if resolver
-                             (push (consume readable-list) propvals)
-                             (return))))
+                       (or
+                        (unless (listp (car next))
+                          (let ((resolver (property-function (car next))))
+                            (when resolver
+                              (push (consume readable-list) propvals))))
+                        (return)))
                       (T (push (consume readable-list) propvals))))
            (cons property (nreverse propvals)))
          NIL)
