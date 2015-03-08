@@ -7,7 +7,7 @@
 (in-package #:org.tymoonnext.lass)
 
 (defclass lass-file (asdf:source-file)
-  ()
+  ((output :initarg :output :initform NIL :accessor output))
   (:default-initargs :type "lass"))
 
 ;; Hack to ensure that ASDF recognises the class
@@ -29,7 +29,10 @@
 
 (defmethod asdf:output-files ((op asdf:compile-op) (c lass-file))
   (values
-   (list (make-pathname :type "css" :defaults (asdf:component-pathname c)))
+   (list (merge-pathnames
+          (or (output c)
+              (pathname-name (asdf:component-pathname c)))
+          (make-pathname :type "css" :defaults (asdf:component-pathname c))))
    T))
 
 (defmethod asdf:perform ((op asdf:load-op) (c lass-file))
