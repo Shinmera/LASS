@@ -23,7 +23,8 @@
                (:file "property-funcs")
                (:file "writer")
                (:file "lass")
-               (:file "special"))
+               (:file "special")
+               (:file "asdf"))
   :depends-on (:trivial-indent
                :trivial-mimes
                :cl-base64))

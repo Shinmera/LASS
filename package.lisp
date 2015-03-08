@@ -7,6 +7,9 @@
 (defpackage #:LASS
   (:nicknames #:org.tymoonnext.lass)
   (:use #:cl)
+  ;; asdf.lisp
+  (:export
+   #:lass-file)
   ;; compiler.lisp
   (:export
    #:*vars*
