@@ -4,14 +4,15 @@
     <meta charset="utf-8"/>
     <title>LASS</title>
     <style type="text/css">
-      code a{text-decoration:none;}
-      h1{display:inline-block;font-size: 28pt;margin-bottom:0;}
-      code{font-family: Consolas, Inconsolata, monospace;}
-      h4{display: inline-block;margin:0;padding:0;}
+      html{font-family: serif;}
+      code a{text-decoration: none;}
+      h1{display: inline-block; margin-bottom: 0;}
+      code{font-family: monospace;}
+      h4{display: inline-block; margin: 0; padding: 0;}
       #symbol-index ul{list-style: none;}
       .package li{margin-bottom: 20px;}
       .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
-      .package .nicknames{font-size: 12pt; font-weight: normal;}
+      .package .nicknames{font-weight: normal;}
       table{margin: 20px;}
       td{padding-bottom: 10px;}
     </style>
@@ -19,7 +20,7 @@
   <body>
     <header>
       <h1>lass</h1>
-      <span>0.2.0</span>
+      <span>0.4.0</span>
       <p>Lisp Augmented Style Sheets. Compiles LASS to CSS.</p>
     </header>
     <div id="content">
@@ -212,12 +213,22 @@ article p a:hover, article blockquote a:hover{
 <p>Once you visit a <code>.lass</code> file, it will automatically start in the <code>LASS</code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code><a href="#LASS:GENERATE">GENERATE</a></code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code>lass</code> binary</a> must be in your path.</p>
 
 <p>If your operating system is not directly supported with a binary, you can build it yourself using a build tool like <a href="http://www.xach.com/lisp/buildapp/">Buildapp</a>, the ASDF system <code>BINARY-LASS</code> and the entry-point <code>BINARY-LASS:CMD-WRAPPER</code>.</p>
+
+<h2>ASDF Integration</h2>
+
+<p>If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do this via a <code><a href="#LASS:LASS-FILE">lass-file</a></code> component type, and <code>:defsystem-depends-on</code>-ing LASS.</p>
+
+<pre><code>(asdf:defsystem my-system
+  :defsystem-depends-on (:lass)
+  :components (<a href="#LASS:LASS-FILE">(:lass-file</a> &quot;test-file&quot;)))</code></pre>
+
+<p>You can also specify an <code>:output</code> argument to a <code><a href="#LASS:LASS-FILE">lass-file</a></code> to specify what the target css file should be.</p>
 </span>
         </c:documentate>
       </article>
       <article>
         <h2>Copyright</h2>
-        <span>lass</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license and ©<span>2014</span> <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>. This library can be obtained on <a href="https://github.com/Shinmera/LASS">https://github.com/Shinmera/LASS</a>.
+        <span>lass</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license and ©<span>2015</span> <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>. This library can be obtained on <a href="https://github.com/Shinmera/LASS">https://github.com/Shinmera/LASS</a>.
       </article>
       <article id="symbol-index">
         <h2>Package Index</h2>
@@ -227,6 +238,32 @@ article p a:hover, article blockquote a:hover{
               <span class="nicknames">(ORG.TYMOONNEXT.LASS)</span>
             </h3>
             <ul><li>
+                <a name="LASS:PROPERTY-FUNCTION"/>
+                <article>
+                  <header>
+                    <span>ACCESSOR</span>
+                    <code>
+                      <h4><a href="#LASS:PROPERTY-FUNCTION">PROPERTY-FUNCTION</a></h4>
+                      <span/>
+                      <span>(NAME)</span>
+                    </code>
+                  </header>
+                  <pre>Returns a function to process a property function of NAME, if any.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:LASS-FILE"/>
+                <article>
+                  <header>
+                    <span>CLASS</span>
+                    <code>
+                      <h4><a href="#LASS:LASS-FILE">LASS-FILE</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>An ASDF source-file component to allow compilation of LASS to CSS in ASDF systems.</pre>
+                </article>
+              </li><li>
                 <a name="LASS:COMPILE-AND-WRITE"/>
                 <article>
                   <header>
@@ -262,8 +299,8 @@ together into one list of blocks and properties.</pre>
                     <code>
                       <h4><a href="#LASS:GENERATE">GENERATE</a></h4>
                       <span/>
-                      <span>(IN &amp;KEY (OUT (MERGE-PATHNAMES (MAKE-PATHNAME TYPE css) IN)) (PRETTY NIL)
- (IF-EXISTS SUPERSEDE))</span>
+                      <span>(IN &amp;KEY (OUT (MERGE-PATHNAMES (MAKE-PATHNAME :TYPE &quot;css&quot;) IN)) (PRETTY NIL)
+ (IF-EXISTS :SUPERSEDE))</span>
                     </code>
                   </header>
                   <pre>Generate a CSS file from a LASS file.
@@ -313,6 +350,32 @@ Returns OUT</pre>
                     </code>
                   </header>
                   <pre>Creates a property object with PROPERTY as its key and VALUE as its value.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:REMOVE-PROPERTY-FUNCTION"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:REMOVE-PROPERTY-FUNCTION">REMOVE-PROPERTY-FUNCTION</a></h4>
+                      <span/>
+                      <span>(NAME)</span>
+                    </code>
+                  </header>
+                  <pre>Removes the property function NAME.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:RESOLVE-FUNCTION"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#LASS:RESOLVE-FUNCTION">RESOLVE-FUNCTION</a></h4>
+                      <span/>
+                      <span>(FUNCTION &amp;REST ARGS)</span>
+                    </code>
+                  </header>
+                  <pre>Turns the FUNCTION with its ARGS into a properly usable property value.</pre>
                 </article>
               </li><li>
                 <a name="LASS:WRITE-SHEET"/>
@@ -463,6 +526,34 @@ Calls COMPILE-CONSTRAINT with the SELECTOR's CAR and CDR.
 Returns a list with the RESOLVEd SELECTOR.</pre>
                 </article>
               </li><li>
+                <a name="LASS:CONSUME-ITEM"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#LASS:CONSUME-ITEM">CONSUME-ITEM</a></h4>
+                      <span/>
+                      <span>(ITEM READABLE-LIST)</span>
+                    </code>
+                  </header>
+                  <pre>Consumes items from READABLE-LIST as required by the ITEM.
+Returned should be two values, the first being a property to compile (or NIL)
+and the second a block to compile (or NIL).
+By default, the following cases are handled:
+
+ (LIST)
+Simply returns the ITEM as a block.
+
+ (SYMBOL)
+If it's a keyword, reads until the next keyword or list and returns that as a
+property to compile. With property-functions, some sublists may also be read
+in automatically. See DEFINE-PROPERTY-FUNCTION. If it is a regular symbol,
+CALL-NEXT-METHOD is invoked.
+
+ (T)
+Signals an error.</pre>
+                </article>
+              </li><li>
                 <a name="LASS:RESOLVE"/>
                 <article>
                   <header>
@@ -476,12 +567,13 @@ Returns a list with the RESOLVEd SELECTOR.</pre>
                   <pre>Resolves THING to a value that makes sense for LASS.
 
 By default the following types are handled:
-NULL:    NIL
-STRING:  the THING itself
-ARRAY:   the variable stored in *VARS* under THING
-KEYWORD: Colon-prefixed, downcased symbol-name of THING
-SYMBOL:  Downcased symbol-name of THING
-T:       PRINC-TO-STRING of THING</pre>
+NULL:     NIL
+STRING:   the THING itself
+ARRAY:    the variable stored in *VARS* under THING
+KEYWORD:  Colon-prefixed, downcased symbol-name of THING
+SYMBOL:   Downcased symbol-name of THING
+PATHNAME: If designating an image, base64 encoded inline image data.
+T:        PRINC-TO-STRING of THING</pre>
                 </article>
               </li><li>
                 <a name="LASS:WRITE-SHEET-OBJECT"/>
@@ -532,6 +624,105 @@ in the option definition is bound to the computed property name
 You can define special handling of the browsers by defining options
 specifically for them. If no handling is defined, the DEFAULT option
 is used as a fallback.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-PRIMITIVE-PROPERTY-CONSUMER"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-PRIMITIVE-PROPERTY-CONSUMER">DEFINE-PRIMITIVE-PROPERTY-CONSUMER</a></h4>
+                      <span/>
+                      <span>(SPECIALIZER (PROPVALS READABLE NEXT) &amp;BODY LOOP-BODY)</span>
+                    </code>
+                  </header>
+                  <pre>Defines a CONSUME-ITEM method for the given item SPECIALIZER.
+
+SPECIALIZER --- The method specializer for the item.
+PROPVALS    --- The list that should contain the property values.
+READABLE    --- The readable-list being operated on currently.
+NEXT        --- Bound to the next (unconsumed) item in the readable-list.
+LOOP-BODY   --- The body of the reading loop to execute until the readable is empty.
+
+The return value of the loop-body is discarded. You can use (RETURN) to exit the loop,
+for example for when you encounter an item you don't want to read.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-PROPERTY-FUNCTION"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION">DEFINE-PROPERTY-FUNCTION</a></h4>
+                      <span/>
+                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                    </code>
+                  </header>
+                  <pre>Define a new property function NAME, accepting ARGS. 
+The body should return a value to use directly, if possible a string.
+The results of a property-function should not be RESOVLEd.
+
+Property functions are function calls that occur as (part of) the
+value of a property. Due to ambiguity issues with a general sub-block,
+property functions need to be explicitly defined and may completely
+differ depending on the property. Property functions defined with this
+are only the defaults available for all properties. If you want to
+minimise collision probability or avoid an illegal function for a
+certain property, you should define a direct method on CONSUME-ITEM
+to handle the reading of the property values manually.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-PROPERTY-FUNCTION-CASE"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION-CASE">DEFINE-PROPERTY-FUNCTION-CASE</a></h4>
+                      <span/>
+                      <span>(PROPERTY (ARGS) &amp;BODY FUNCTION-CLAUSES)</span>
+                    </code>
+                  </header>
+                  <pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCTION-CLAUSES ::= function-clause*
+FUNCTION-CLAUSE  ::= (function-name form*)
+
+Each function-name is compared by STRING-EQUAL and each clause should return the
+property-value to use in its place, or NIL if it should be skipped.
+
+You can use (RETURN) in a clause body to stop reading values altogether.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-SIMPLE-PROPERTY-FUNCTION"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTION">DEFINE-SIMPLE-PROPERTY-FUNCTION</a></h4>
+                      <span/>
+                      <span>(NAME ARGS)</span>
+                    </code>
+                  </header>
+                  <pre>Defines a property function that returns name(arg1,arg2...).
+Only required arguments are allowed.</pre>
+                </article>
+              </li><li>
+                <a name="LASS:DEFINE-SIMPLE-PROPERTY-FUNCTIONS"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTIONS">DEFINE-SIMPLE-PROPERTY-FUNCTIONS</a></h4>
+                      <span/>
+                      <span>(PROPERTY &amp;REST FUNCSPECS)</span>
+                    </code>
+                  </header>
+                  <pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCSPECS ::= funcspec*
+FUNCSPEC  ::= (funcname arg* [&amp;optional arg*] [&amp;key arg*])
+
+See DEFINE-PROPERTY-FUNCTION-CASE.</pre>
                 </article>
               </li><li>
                 <a name="LASS:DEFINE-SINGLE-ARG-SELECTOR"/>

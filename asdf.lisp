@@ -8,7 +8,8 @@
 
 (defclass lass-file (asdf:source-file)
   ((output :initarg :output :initform NIL :accessor output))
-  (:default-initargs :type "lass"))
+  (:default-initargs :type "lass")
+  (:documentation "An ASDF source-file component to allow compilation of LASS to CSS in ASDF systems."))
 
 ;; Hack to ensure that ASDF recognises the class
 ;; as a keyword, which I think is currently a bug.
