@@ -219,3 +219,38 @@ If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do
 ```
 
 You can also specify an `:output` argument to a `lass-file` to specify what the target css file should be.
+
+List of all available selectors' syntax
+---------------------------------------
+The following list contains a selector vs. example of LASS selector list:
+
+* An element of type E.  
+  ```e```
+* An E element being the source anchor of a hyperlink of which the target is not yet visited (:link) or already visited  
+  ```(:and e :link)```
+* The first formatted line of an E element.  
+  ```(:and e |::first-line|)```
+* An E element whose class is "warning" .  
+  ```e.warning```
+* An E element with ID equal to "myid".  
+  ```|e#warning|```
+* An F element descendant of an E element  
+  ```(e (f ...))```
+* Any element  
+  ```*```
+* An E element with a "foo" attribute  
+  ```e[foo]```
+* An E element whose "foo" attribute value is exactly equal to "bar"  
+  ```(:and :a (:= foo "bar"))```
+* An E element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar"  
+  ```(:and :a (:~= foo "bar"))```
+* An E element whose "foo" attribute has a hyphen-separated list of values beginning (from the left) with "bar"  
+  ```(:and :a (:/= foo "bar"))```
+* An E element whose "foo" attribute value begins exactly with the string "bar"  
+  ```(:and :a (:^= foo "bar"))```
+* An E element whose "foo" attribute value ends exactly with the string "bar"  
+  ```(:and :a (:$= foo "bar"))```
+* An E element whose "foo" attribute value contains the substring "bar"  
+  ```(:and :a (:*= foo "bar"))```
+* An F element preceded by an E element  
+  ```(e ~ f)```
