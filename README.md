@@ -6,192 +6,211 @@ How To
 ------
 LASS supports two modes, one being directly in your lisp code, the other in pure LASS files. Adding LASS into your code is easy:
 
-```
-(lass:compile-and-write
- '(div
-   :background black))
-
-"div{
-    background: black;
-}"
-```
+    (lass:compile-and-write
+     '(div
+       :background black))
+    
+    "div{
+        background: black;
+    }"
 
 LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a bunch of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.
 
-```
-(lass:compile-and-write
- '(nav
-   (ul
-    :list-style none
-    (li
-     :margin 0 :padding 0
-     :display inline-block)))))
-
-"nav ul{
-    list-style: none;
-}
-
-nav ul li{
-    margin: 0;
-    padding: 0;
-    display: inline-block;
-}"
-```
+    (lass:compile-and-write
+     '(nav
+       (ul
+        :list-style none
+        (li
+         :margin 0 :padding 0
+         :display inline-block)))))
+    
+    "nav ul{
+        list-style: none;
+    }
+    
+    nav ul li{
+        margin: 0;
+        padding: 0;
+        display: inline-block;
+    }"
 
 Since LASS' `COMPILE-SHEET` simply takes a bunch of lists as its argument, you can use the backquote and comma to integrate variables from your lisp environment:
 
-```
-(let ((color "#0088EE"))
-  (lass:compile-and-write
-   `(div
-     :background ,color))))
-
-"div{
-    background: #0088EE;
-}"
-```
+    (let ((color "#0088EE"))
+      (lass:compile-and-write
+       `(div
+         :background ,color))))
+    
+    "div{
+        background: #0088EE;
+    }"
 
 Alternatively however, and this is especially useful in pure LASS files, you can use the `LET` block to create LASS-specific bindings:
 
-```
-(lass:compile-and-write
- '(:let ((color "#0088EE"))
-   (div
-    :background #(color))))
-
-"div{
-    background: #0088EE;
-}"
-```
+    (lass:compile-and-write
+     '(:let ((color "#0088EE"))
+       (div
+        :background #(color))))
+    
+    "div{
+        background: #0088EE;
+    }"
 
 LASS' selector mechanism is very flexible and allows for some complex logic to reduce duplication:
 
-```
-(lass:compile-and-write
- '(article
-   ((:or p blockquote)
-    :margin 0 :padding 0
-
-    (a
-     :color black)
-      
-    ((:and a :hover)
-     :color darkred))))
-
-"article p, article blockquote{
-    margin: 0;
-    padding: 0;
-}
-
-article p a, article blockquote a{
-    color: black;
-}
-
-article p a:hover, article blockquote a:hover{
-    color: darkred;
-}"
-```
+    (lass:compile-and-write
+     '(article
+       ((:or p blockquote)
+        :margin 0 :padding 0
+    
+        (a
+         :color black)
+          
+        ((:and a :hover)
+         :color darkred))))
+    
+    "article p, article blockquote{
+        margin: 0;
+        padding: 0;
+    }
+    
+    article p a, article blockquote a{
+        color: black;
+    }
+    
+    article p a:hover, article blockquote a:hover{
+        color: darkred;
+    }"
 
 But it can go even further:
 
-```
-(lass:compile-and-write
- '((:and
-    (:or article section)
-    (:= data-author (:or yukari ran chen))
-    (:nth-child (:or 1 2 3)))
-   :display none))
-
-"article[data-author=\"yukari\"]:nth-child(1),
- article[data-author=\"yukari\"]:nth-child(2),
- article[data-author=\"yukari\"]:nth-child(3),
- article[data-author=\"ran\"]:nth-child(1),
- article[data-author=\"ran\"]:nth-child(2),
- article[data-author=\"ran\"]:nth-child(3),
- article[data-author=\"chen\"]:nth-child(1),
- article[data-author=\"chen\"]:nth-child(2),
- article[data-author=\"chen\"]:nth-child(3),
- section[data-author=\"yukari\"]:nth-child(1),
- section[data-author=\"yukari\"]:nth-child(2),
- section[data-author=\"yukari\"]:nth-child(3),
- section[data-author=\"ran\"]:nth-child(1),
- section[data-author=\"ran\"]:nth-child(2),
- section[data-author=\"ran\"]:nth-child(3),
- section[data-author=\"chen\"]:nth-child(1),
- section[data-author=\"chen\"]:nth-child(2),
- section[data-author=\"chen\"]:nth-child(3){
-    display: none;
-}"
-```
+    (lass:compile-and-write
+     '((:and
+        (:or article section)
+        (:= data-author (:or yukari ran chen))
+        (:nth-child (:or 1 2 3)))
+       :display none))
+    
+    "article[data-author=\"yukari\"]:nth-child(1),
+     article[data-author=\"yukari\"]:nth-child(2),
+     article[data-author=\"yukari\"]:nth-child(3),
+     article[data-author=\"ran\"]:nth-child(1),
+     article[data-author=\"ran\"]:nth-child(2),
+     article[data-author=\"ran\"]:nth-child(3),
+     article[data-author=\"chen\"]:nth-child(1),
+     article[data-author=\"chen\"]:nth-child(2),
+     article[data-author=\"chen\"]:nth-child(3),
+     section[data-author=\"yukari\"]:nth-child(1),
+     section[data-author=\"yukari\"]:nth-child(2),
+     section[data-author=\"yukari\"]:nth-child(3),
+     section[data-author=\"ran\"]:nth-child(1),
+     section[data-author=\"ran\"]:nth-child(2),
+     section[data-author=\"ran\"]:nth-child(3),
+     section[data-author=\"chen\"]:nth-child(1),
+     section[data-author=\"chen\"]:nth-child(2),
+     section[data-author=\"chen\"]:nth-child(3){
+        display: none;
+    }"
 
 Whoa nelly!
 
 Some CSS properties are not fully specified yet and require browser-specific prefixes. LASS can help you with that, too:
 
-```
-(lass:compile-and-write
- '(.fun
-   :linear-gradient "deg(45)" black 0% darkgray 100%
-   :transform rotate -45deg))
-
-".fun{
-    background: -moz-linear-gradient(deg(45), black 0%, darkgray 100%);
-    background: -o-linear-gradient(deg(45), black 0%, darkgray 100%);
-    background: -webkit-linear-gradient(deg(45), black 0%, darkgray 100%);
-    background: -ms-linear-gradient(deg(45), black 0%, darkgray 100%);
-    background: linear-gradient(deg(45), black 0%, darkgray 100%);
-    -moz-transform: rotate(-45deg);
-    -o-transform: rotate(-45deg);
-    -webkit-transform: rotate(-45deg);
-    -ms-transform: rotate(-45deg);
-    transform: rotate(-45deg);
-}"
-```
+    (lass:compile-and-write
+     '(.fun
+       :linear-gradient "deg(45)" black 0% darkgray 100%
+       :transform rotate -45deg))
+    
+    ".fun{
+        background: -moz-linear-gradient(deg(45), black 0%, darkgray 100%);
+        background: -o-linear-gradient(deg(45), black 0%, darkgray 100%);
+        background: -webkit-linear-gradient(deg(45), black 0%, darkgray 100%);
+        background: -ms-linear-gradient(deg(45), black 0%, darkgray 100%);
+        background: linear-gradient(deg(45), black 0%, darkgray 100%);
+        -moz-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        transform: rotate(-45deg);
+    }"
 
 LASS also supports the various `@QUERY` operator blocks:
 
-```
-(lass:compile-and-write
- '(:media "(max-width: 800px)"
-   (div
-    :margin 0)))
-
-"@media (max-width: 800px){
-    div{
-        margin: 0;
-    }
-}"
-```
+    (lass:compile-and-write
+     '(:media "(max-width: 800px)"
+       (div
+        :margin 0)))
+    
+    "@media (max-width: 800px){
+        div{
+            margin: 0;
+        }
+    }"
 
 By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified CSS:
 
-```
-(let ((lass:*pretty* NIL))
-  (lass:compile-and-write
-   '(:media "(max-width: 800px)"
-     (div
-      :margin 0))))
-
-"@media (max-width: 800px){div{margin:0;}}"
-```
+    (let ((lass:*pretty* NIL))
+      (lass:compile-and-write
+       '(:media "(max-width: 800px)"
+         (div
+          :margin 0))))
+    
+    "@media (max-width: 800px){div{margin:0;}}"
 
 As mentioned above you can write pure LASS files to compile down to a CSS file. To do that, simply use `GENERATE`:
 
 ![generate-example](http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png)
 
+LASS Selector Syntax
+--------------------
+The following list contains examples for the various uses of selectors.
+
+* Any element  
+  `*`
+* An element with tag-name `e`  
+  `e`
+* An E element with the `:link` pseudo-selector  
+  `(:and e :link)`
+* The first formatted line of an E element  
+  `(:and e |::first-line|)` or `(:and e "::first-line")`
+* An E element with a "warning" class  
+  `e.warning`
+* An E element with ID equal to "warning"  
+  `|e#warning|` or `"e#warning"`
+* An E element with a "foo" attribute  
+  `e[foo]`
+* An E element whose "foo" attribute value is exactly equal to "bar"  
+  `(:and :a (:= foo "bar"))`
+* An E element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar"  
+  `(:and :a (:~= foo "bar"))`
+* An E element whose "foo" attribute has a hyphen-separated list of values beginning (from the left) with "bar"  
+  `(:and :a (:/= foo "bar"))`
+* An E element whose "foo" attribute value begins exactly with the string "bar"  
+  `(:and :a (:^= foo "bar"))`
+* An E element whose "foo" attribute value ends exactly with the string "bar"  
+  `(:and :a (:$= foo "bar"))`
+* An E element whose "foo" attribute value contains the substring "bar"  
+  `(:and :a (:*= foo "bar"))`
+* An F element preceded by an E element  
+  `(e ~ f)`
+* An F element immediately precede by an E element  
+  `(e + f)`
+* An F element which is a descendant of E  
+  `(e f)`
+* An F element which is a direct descendant of E
+  `(e > f)`
+
 Extending LASS
 --------------
 Pretty much every part of LASS is extensible through methods. Most useful will however probably be the `DEFINE-SPECIAL-PROPERTY`, `DEFINE-BROWSER-PROPERTY` and `DEFINE-SPECIAL-SELECTOR` helper-macros. Here's some examples from the `SPECIAL.LISP` file that defines some standard special handlers:
 
-```
-(define-special-property font-family (&rest faces)
-  (list (make-property "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
-
-(define-browser-property linear-gradient (direction &rest colors)
-  (:default (property)
-    (make-property "background" (format NIL "~a(~a~{, ~a ~a~})"
-                                         property (resolve direction) (mapcar #'resolve colors)))))
-```
+    (define-special-property font-family (&rest faces)
+      (list (make-property "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
+    
+    (define-browser-property linear-gradient (direction &rest colors)
+      (:default (property)
+        (make-property "background" (format NIL "~a(~a~{, ~a ~a~})"
+                                             property (resolve direction) (mapcar #'resolve colors)))))
 
 For more control, have a look at the various `COMPILE-*` generic functions.
 
@@ -199,10 +218,8 @@ Emacs Support
 -------------
 LASS includes a tiny elisp file, `lass.el`. Add LASS' directory to your emacs `LOAD-PATH` and `REQUIRE` lass.
 
-```
-(add-to-list 'load-path "[path-to-lass-source-dir]/")
-(require 'lass)
-```
+    (add-to-list 'load-path "[path-to-lass-source-dir]/")
+    (require 'lass)
 
 Once you visit a `.lass` file, it will automatically start in the `LASS` major-mode, which is a derived-mode from `COMMON-LISP-MODE`. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate `GENERATE`. If slime is not connected, it instead executes a shell command. In order for that to work, the [`lass` binary](https://github.com/Shinmera/LASS/releases) must be in your path.
 
@@ -212,45 +229,8 @@ ASDF Integration
 ----------------
 If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do this via a `lass-file` component type, and `:defsystem-depends-on`-ing LASS.
 
-```
-(asdf:defsystem my-system
-  :defsystem-depends-on (:lass)
-  :components ((:lass-file "test-file")))
-```
+    (asdf:defsystem my-system
+      :defsystem-depends-on (:lass)
+      :components ((:lass-file "test-file")))
 
 You can also specify an `:output` argument to a `lass-file` to specify what the target css file should be.
-
-List of all available selectors' syntax
----------------------------------------
-The following list contains a selector vs. example of LASS selector list:
-
-* An element of type E.  
-  ```e```
-* An E element being the source anchor of a hyperlink of which the target is not yet visited (:link) or already visited  
-  ```(:and e :link)```
-* The first formatted line of an E element.  
-  ```(:and e |::first-line|)```
-* An E element whose class is "warning" .  
-  ```e.warning```
-* An E element with ID equal to "myid".  
-  ```|e#warning|```
-* An F element descendant of an E element  
-  ```(e (f ...))```
-* Any element  
-  ```*```
-* An E element with a "foo" attribute  
-  ```e[foo]```
-* An E element whose "foo" attribute value is exactly equal to "bar"  
-  ```(:and :a (:= foo "bar"))```
-* An E element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar"  
-  ```(:and :a (:~= foo "bar"))```
-* An E element whose "foo" attribute has a hyphen-separated list of values beginning (from the left) with "bar"  
-  ```(:and :a (:/= foo "bar"))```
-* An E element whose "foo" attribute value begins exactly with the string "bar"  
-  ```(:and :a (:^= foo "bar"))```
-* An E element whose "foo" attribute value ends exactly with the string "bar"  
-  ```(:and :a (:$= foo "bar"))```
-* An E element whose "foo" attribute value contains the substring "bar"  
-  ```(:and :a (:*= foo "bar"))```
-* An F element preceded by an E element  
-  ```(e ~ f)```
