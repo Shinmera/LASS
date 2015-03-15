@@ -84,14 +84,14 @@
 
 ;;; SELECTORS
 
-(defmacro define-attr-comparator (comp)
+(defmacro define-attr-comparator (comp &optional (outcomp comp))
   "Helper macro to define an attribute comparator selector."
   `(define-special-selector ,comp (attr value)
      (loop with out = ()
            with values = (compile-selector value)
            for attr in (compile-selector attr)
            do (loop for value in values
-                    do (push (format NIL ,"[~a~a\"~a\"]" attr ,(string comp) value) out))
+                    do (push (format NIL ,"[~a~a\"~a\"]" attr ,(string outcomp) value) out))
            finally (return (nreverse out)))))
 
 (define-attr-comparator =)
@@ -99,7 +99,7 @@
 (define-attr-comparator *=)
 (define-attr-comparator $=)
 (define-attr-comparator ^=)
-(define-attr-comparator /=)
+(define-attr-comparator /= \|=)
 
 (defmacro define-single-arg-selector (name)
   "Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD."
