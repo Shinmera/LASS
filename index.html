@@ -207,35 +207,35 @@ article p a:hover, article blockquote a:hover{
   <code>*</code></li>
 <li>An element with tag-name <code>e</code><br/>
   <code>e</code></li>
-<li>An E element with the <code>:link</code> pseudo-selector<br/>
+<li>An <code>e</code> element with the <code>:link</code> pseudo-selector<br/>
   <code>(:and e :link)</code></li>
-<li>The first formatted line of an E element<br/>
+<li>The first formatted line of an <code>e</code> element<br/>
   <code>(:and e |::first-line|)</code> or <code>(:and e &quot;::first-line&quot;)</code></li>
-<li>An E element with a &quot;warning&quot; class<br/>
+<li>An <code>e</code> element with a &quot;warning&quot; class<br/>
   <code>e.warning</code></li>
-<li>An E element with ID equal to &quot;warning&quot;<br/>
+<li>An <code>e</code> element with ID equal to <code><a href="http://l1sp.org/cl/warning">warning</a></code><br/>
   <code>|e#warning|</code> or <code>&quot;e#warning&quot;</code></li>
-<li>An E element with a &quot;foo&quot; attribute<br/>
+<li>An <code>e</code> element with a <code>foo</code> attribute<br/>
   <code>e[foo]</code></li>
-<li>An E element whose &quot;foo&quot; attribute value is exactly equal to &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute value is exactly equal to <code>bar</code><br/>
   <code>(:and :a (:= foo &quot;bar&quot;))</code></li>
-<li>An E element whose &quot;foo&quot; attribute value is a list of whitespace-separated values, one of which is exactly equal to &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute value is a list of whitespace-separated values, one of which is exactly equal to <code>bar</code><br/>
   <code>(:and :a (:~= foo &quot;bar&quot;))</code></li>
-<li>An E element whose &quot;foo&quot; attribute has a hyphen-separated list of values beginning (from the left) with &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute has a hyphen-separated list of values beginning (from the left) with <code>bar</code><br/>
   <code>(:and :a (:/= foo &quot;bar&quot;))</code></li>
-<li>An E element whose &quot;foo&quot; attribute value begins exactly with the string &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute value begins exactly with the string <code>bar</code><br/>
   <code>(:and :a (:^= foo &quot;bar&quot;))</code></li>
-<li>An E element whose &quot;foo&quot; attribute value ends exactly with the string &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute value ends exactly with the string <code>bar</code><br/>
   <code>(:and :a (:$= foo &quot;bar&quot;))</code></li>
-<li>An E element whose &quot;foo&quot; attribute value contains the substring &quot;bar&quot;<br/>
+<li>An <code>e</code> element whose <code>foo</code> attribute value contains the substring <code>bar</code><br/>
   <code>(:and :a (:*= foo &quot;bar&quot;))</code></li>
-<li>An F element preceded by an E element<br/>
+<li>An <code>f</code> element preceded by an <code>e</code> element<br/>
   <code>(e ~ f)</code></li>
-<li>An F element immediately precede by an E element<br/>
+<li>An <code>f</code> element immediately precede by an <code>e</code> element<br/>
   <code>(e + f)</code></li>
-<li>An F element which is a descendant of E<br/>
+<li>An <code>f</code> element which is a descendant of <code>e</code><br/>
   <code>(e f)</code></li>
-<li>An F element which is a direct descendant of E
+<li>An <code>f</code> element which is a direct descendant of <code>e</code>
   <code>(e &gt; f)</code></li>
 </ul>
 
