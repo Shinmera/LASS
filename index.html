@@ -40,7 +40,8 @@
 
 &quot;div{
     background: black;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a bunch of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.</p>
 
@@ -60,7 +61,8 @@ nav ul li{
     margin: 0;
     padding: 0;
     display: inline-block;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>Since LASS' <code><a href="#LASS:COMPILE-SHEET">COMPILE-SHEET</a></code> simply takes a bunch of lists as its argument, you can use the backquote and comma to integrate variables from your lisp environment:</p>
 
@@ -71,7 +73,8 @@ nav ul li{
 
 &quot;div{
     background: #0088EE;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>Alternatively however, and this is especially useful in pure LASS files, you can use the <code><a href="http://l1sp.org/cl/let">LET</a></code> block to create LASS-specific bindings:</p>
 
@@ -82,7 +85,8 @@ nav ul li{
 
 &quot;div{
     background: #0088EE;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>LASS' selector mechanism is very flexible and allows for some complex logic to reduce duplication:</p>
 
@@ -93,7 +97,7 @@ nav ul li{
 
     (a
      :color black)
-      
+
     ((:and a :hover)
      :color darkred))))
 
@@ -108,7 +112,8 @@ article p a, article blockquote a{
 
 article p a:hover, article blockquote a:hover{
     color: darkred;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>But it can go even further:</p>
 
@@ -138,7 +143,8 @@ article p a:hover, article blockquote a:hover{
  section[data-author=\&quot;chen\&quot;]:nth-child(2),
  section[data-author=\&quot;chen\&quot;]:nth-child(3){
     display: none;
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>Whoa nelly!</p>
 
@@ -160,7 +166,8 @@ article p a:hover, article blockquote a:hover{
     -webkit-transform: rotate(-45deg);
     -ms-transform: rotate(-45deg);
     transform: rotate(-45deg);
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>LASS also supports the various <code>@QUERY</code> operator blocks:</p>
 
@@ -173,7 +180,8 @@ article p a:hover, article blockquote a:hover{
     div{
         margin: 0;
     }
-}&quot;</code></pre>
+}&quot;
+</code></pre>
 
 <p>By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified CSS:</p>
 
@@ -183,11 +191,53 @@ article p a:hover, article blockquote a:hover{
      (div
       :margin 0))))
 
-&quot;@media (max-width: 800px){div{margin:0;}}&quot;</code></pre>
+&quot;@media (max-width: 800px){div{margin:0;}}&quot;
+</code></pre>
 
 <p>As mentioned above you can write pure LASS files to compile down to a CSS file. To do that, simply use <code><a href="#LASS:GENERATE">GENERATE</a></code>:</p>
 
 <p><img src="http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png" alt="generate-example"/></p>
+
+<h2>LASS Selector Syntax</h2>
+
+<p>The following list contains examples for the various uses of selectors.</p>
+
+<ul>
+<li>Any element<br/>
+  <code>*</code></li>
+<li>An element with tag-name <code>e</code><br/>
+  <code>e</code></li>
+<li>An E element with the <code>:link</code> pseudo-selector<br/>
+  <code>(:and e :link)</code></li>
+<li>The first formatted line of an E element<br/>
+  <code>(:and e |::first-line|)</code> or <code>(:and e &quot;::first-line&quot;)</code></li>
+<li>An E element with a &quot;warning&quot; class<br/>
+  <code>e.warning</code></li>
+<li>An E element with ID equal to &quot;warning&quot;<br/>
+  <code>|e#warning|</code> or <code>&quot;e#warning&quot;</code></li>
+<li>An E element with a &quot;foo&quot; attribute<br/>
+  <code>e[foo]</code></li>
+<li>An E element whose &quot;foo&quot; attribute value is exactly equal to &quot;bar&quot;<br/>
+  <code>(:and :a (:= foo &quot;bar&quot;))</code></li>
+<li>An E element whose &quot;foo&quot; attribute value is a list of whitespace-separated values, one of which is exactly equal to &quot;bar&quot;<br/>
+  <code>(:and :a (:~= foo &quot;bar&quot;))</code></li>
+<li>An E element whose &quot;foo&quot; attribute has a hyphen-separated list of values beginning (from the left) with &quot;bar&quot;<br/>
+  <code>(:and :a (:/= foo &quot;bar&quot;))</code></li>
+<li>An E element whose &quot;foo&quot; attribute value begins exactly with the string &quot;bar&quot;<br/>
+  <code>(:and :a (:^= foo &quot;bar&quot;))</code></li>
+<li>An E element whose &quot;foo&quot; attribute value ends exactly with the string &quot;bar&quot;<br/>
+  <code>(:and :a (:$= foo &quot;bar&quot;))</code></li>
+<li>An E element whose &quot;foo&quot; attribute value contains the substring &quot;bar&quot;<br/>
+  <code>(:and :a (:*= foo &quot;bar&quot;))</code></li>
+<li>An F element preceded by an E element<br/>
+  <code>(e ~ f)</code></li>
+<li>An F element immediately precede by an E element<br/>
+  <code>(e + f)</code></li>
+<li>An F element which is a descendant of E<br/>
+  <code>(e f)</code></li>
+<li>An F element which is a direct descendant of E
+  <code>(e &gt; f)</code></li>
+</ul>
 
 <h2>Extending LASS</h2>
 
@@ -199,7 +249,8 @@ article p a:hover, article blockquote a:hover{
 (<a href="#LASS:DEFINE-BROWSER-PROPERTY">define-browser-property</a> linear-gradient (direction &amp;rest colors)
   (:default (property)
     (<a href="#LASS:MAKE-PROPERTY">make-property</a> &quot;background&quot; (<a href="http://l1sp.org/cl/format">format</a> NIL &quot;~a(~a~{, ~a ~a~})&quot;
-                                         property (<a href="#LASS:RESOLVE">resolve</a> direction) (<a href="http://l1sp.org/cl/mapcar">mapcar</a> #'resolve colors)))))</code></pre>
+                                         property (<a href="#LASS:RESOLVE">resolve</a> direction) (<a href="http://l1sp.org/cl/mapcar">mapcar</a> #'resolve colors)))))
+</code></pre>
 
 <p>For more control, have a look at the various <code>COMPILE-*</code> generic functions.</p>
 
@@ -208,7 +259,8 @@ article p a:hover, article blockquote a:hover{
 <p>LASS includes a tiny elisp file, <code>lass.el</code>. Add LASS' directory to your emacs <code>LOAD-PATH</code> and <code><a href="http://l1sp.org/cl/require">REQUIRE</a></code> lass.</p>
 
 <pre><code>(add-to-list 'load-path &quot;[path-to-lass-source-dir]/&quot;)
-(<a href="http://l1sp.org/cl/require">require</a> 'lass)</code></pre>
+(<a href="http://l1sp.org/cl/require">require</a> 'lass)
+</code></pre>
 
 <p>Once you visit a <code>.lass</code> file, it will automatically start in the <code>LASS</code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code><a href="#LASS:GENERATE">GENERATE</a></code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code>lass</code> binary</a> must be in your path.</p>
 
@@ -220,7 +272,8 @@ article p a:hover, article blockquote a:hover{
 
 <pre><code>(asdf:defsystem my-system
   :defsystem-depends-on (:lass)
-  :components (<a href="#LASS:LASS-FILE">(:lass-file</a> &quot;test-file&quot;)))</code></pre>
+  :components (<a href="#LASS:LASS-FILE">(:lass-file</a> &quot;test-file&quot;)))
+</code></pre>
 
 <p>You can also specify an <code>:output</code> argument to a <code><a href="#LASS:LASS-FILE">lass-file</a></code> to specify what the target css file should be.</p>
 </span>
@@ -244,7 +297,7 @@ article p a:hover, article blockquote a:hover{
                     <span>ACCESSOR</span>
                     <code>
                       <h4><a href="#LASS:PROPERTY-FUNCTION">PROPERTY-FUNCTION</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME)</span>
                     </code>
                   </header>
@@ -257,8 +310,8 @@ article p a:hover, article blockquote a:hover{
                     <span>CLASS</span>
                     <code>
                       <h4><a href="#LASS:LASS-FILE">LASS-FILE</a></h4>
-                      <span/>
-                      <span/>
+                      <span></span>
+                      <span>()</span>
                     </code>
                   </header>
                   <pre>An ASDF source-file component to allow compilation of LASS to CSS in ASDF systems.</pre>
@@ -270,7 +323,7 @@ article p a:hover, article blockquote a:hover{
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-AND-WRITE">COMPILE-AND-WRITE</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(&amp;REST FORMS)</span>
                     </code>
                   </header>
@@ -283,7 +336,7 @@ article p a:hover, article blockquote a:hover{
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-SHEET">COMPILE-SHEET</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(&amp;REST BLOCKS)</span>
                     </code>
                   </header>
@@ -298,7 +351,7 @@ together into one list of blocks and properties.</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:GENERATE">GENERATE</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(IN &amp;KEY (OUT (MERGE-PATHNAMES (MAKE-PATHNAME :TYPE &quot;css&quot;) IN)) (PRETTY NIL)
  (IF-EXISTS :SUPERSEDE))</span>
                     </code>
@@ -319,8 +372,8 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:INDENT">INDENT</a></h4>
-                      <span/>
-                      <span/>
+                      <span></span>
+                      <span>()</span>
                     </code>
                   </header>
                   <pre>Returns a string of the appropriate number of spaces depending on *PRETTY* and *INDENT-LEVEL*</pre>
@@ -332,7 +385,7 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:MAKE-BLOCK">MAKE-BLOCK</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(SELECTOR VALUES)</span>
                     </code>
                   </header>
@@ -345,7 +398,7 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:MAKE-PROPERTY">MAKE-PROPERTY</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(PROPERTY &amp;OPTIONAL VALUE)</span>
                     </code>
                   </header>
@@ -358,7 +411,7 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:REMOVE-PROPERTY-FUNCTION">REMOVE-PROPERTY-FUNCTION</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME)</span>
                     </code>
                   </header>
@@ -371,7 +424,7 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:RESOLVE-FUNCTION">RESOLVE-FUNCTION</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(FUNCTION &amp;REST ARGS)</span>
                     </code>
                   </header>
@@ -384,7 +437,7 @@ Returns OUT</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:WRITE-SHEET">WRITE-SHEET</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(SHEET &amp;KEY (STREAM NIL) (PRETTY *PRETTY*))</span>
                     </code>
                   </header>
@@ -402,7 +455,7 @@ STREAM can be a STREAM, T for *STANDARD-OUTPUT*, or NIL for a STRING.</pre>
                     <span>FUNCTION</span>
                     <code>
                       <h4><a href="#LASS:WRITE-SHEET-PART">WRITE-SHEET-PART</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(STREAM BLOCK CP AP)</span>
                     </code>
                   </header>
@@ -416,7 +469,7 @@ Calls WRITE-SHEET-OBJECT with (CAR BLOCK) (CDR BLOCK) STREAM.</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-BLOCK">COMPILE-BLOCK</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(HEADER FIELDS)</span>
                     </code>
                   </header>
@@ -447,7 +500,7 @@ See DEFINE-SPECIAL-BLOCK.</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-CONSTRAINT">COMPILE-CONSTRAINT</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(FUNC ARGS)</span>
                     </code>
                   </header>
@@ -483,7 +536,7 @@ See DEFINE-SPECIAL-SELECTOR.</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-PROPERTY">COMPILE-PROPERTY</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(KEY VALUE)</span>
                     </code>
                   </header>
@@ -509,7 +562,7 @@ See DEFINE-SPECIAL-PROPERTY</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:COMPILE-SELECTOR">COMPILE-SELECTOR</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(SELECTOR)</span>
                     </code>
                   </header>
@@ -532,7 +585,7 @@ Returns a list with the RESOLVEd SELECTOR.</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:CONSUME-ITEM">CONSUME-ITEM</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(ITEM READABLE-LIST)</span>
                     </code>
                   </header>
@@ -560,7 +613,7 @@ Signals an error.</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:RESOLVE">RESOLVE</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(THING)</span>
                     </code>
                   </header>
@@ -582,7 +635,7 @@ T:        PRINC-TO-STRING of THING</pre>
                     <span>GENERIC</span>
                     <code>
                       <h4><a href="#LASS:WRITE-SHEET-OBJECT">WRITE-SHEET-OBJECT</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(TYPE OBJECT STREAM)</span>
                     </code>
                   </header>
@@ -607,7 +660,7 @@ if *PRETTY* is non-NIL.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-BROWSER-PROPERTY">DEFINE-BROWSER-PROPERTY</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS &amp;BODY BROWSER-OPTIONS)</span>
                     </code>
                   </header>
@@ -632,7 +685,7 @@ is used as a fallback.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-PRIMITIVE-PROPERTY-CONSUMER">DEFINE-PRIMITIVE-PROPERTY-CONSUMER</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(SPECIALIZER (PROPVALS READABLE NEXT) &amp;BODY LOOP-BODY)</span>
                     </code>
                   </header>
@@ -654,7 +707,7 @@ for example for when you encounter an item you don't want to read.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION">DEFINE-PROPERTY-FUNCTION</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS &amp;BODY BODY)</span>
                     </code>
                   </header>
@@ -678,7 +731,7 @@ to handle the reading of the property values manually.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION-CASE">DEFINE-PROPERTY-FUNCTION-CASE</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(PROPERTY (ARGS) &amp;BODY FUNCTION-CLAUSES)</span>
                     </code>
                   </header>
@@ -699,7 +752,7 @@ You can use (RETURN) in a clause body to stop reading values altogether.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTION">DEFINE-SIMPLE-PROPERTY-FUNCTION</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS)</span>
                     </code>
                   </header>
@@ -713,7 +766,7 @@ Only required arguments are allowed.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTIONS">DEFINE-SIMPLE-PROPERTY-FUNCTIONS</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(PROPERTY &amp;REST FUNCSPECS)</span>
                     </code>
                   </header>
@@ -731,7 +784,7 @@ See DEFINE-PROPERTY-FUNCTION-CASE.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SINGLE-ARG-SELECTOR">DEFINE-SINGLE-ARG-SELECTOR</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME)</span>
                     </code>
                   </header>
@@ -744,7 +797,7 @@ See DEFINE-PROPERTY-FUNCTION-CASE.</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-BLOCK">DEFINE-SPECIAL-BLOCK</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS &amp;BODY BODY)</span>
                     </code>
                   </header>
@@ -763,7 +816,7 @@ See COMPILE-BLOCK</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-PROPERTY">DEFINE-SPECIAL-PROPERTY</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS &amp;BODY BODY)</span>
                     </code>
                   </header>
@@ -781,7 +834,7 @@ See COMPILE-PROPERTY</pre>
                     <span>MACRO</span>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-SELECTOR">DEFINE-SPECIAL-SELECTOR</a></h4>
-                      <span/>
+                      <span></span>
                       <span>(NAME ARGS &amp;BODY BODY)</span>
                     </code>
                   </header>
@@ -800,8 +853,8 @@ See COMPILE-CONSTRAINT.</pre>
                     <span>SPECIAL</span>
                     <code>
                       <h4><a href="#LASS:*INDENT-LEVEL*">*INDENT-LEVEL*</a></h4>
-                      <span/>
-                      <span/>
+                      <span></span>
+                      <span>()</span>
                     </code>
                   </header>
                   <pre>Directs the current amount of spaces used to indent.</pre>
@@ -813,8 +866,8 @@ See COMPILE-CONSTRAINT.</pre>
                     <span>SPECIAL</span>
                     <code>
                       <h4><a href="#LASS:*PRETTY*">*PRETTY*</a></h4>
-                      <span/>
-                      <span/>
+                      <span></span>
+                      <span>()</span>
                     </code>
                   </header>
                   <pre>Directs whether to pretty-print using whitespace or not.</pre>
@@ -826,8 +879,8 @@ See COMPILE-CONSTRAINT.</pre>
                     <span>SPECIAL</span>
                     <code>
                       <h4><a href="#LASS:*VARS*">*VARS*</a></h4>
-                      <span/>
-                      <span/>
+                      <span></span>
+                      <span>()</span>
                     </code>
                   </header>
                   <pre>Special variable containing LASS-environment variables.
