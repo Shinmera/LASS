@@ -169,35 +169,35 @@ The following list contains examples for the various uses of selectors.
   `*`
 * An element with tag-name `e`  
   `e`
-* An E element with the `:link` pseudo-selector  
+* An `e` element with the `:link` pseudo-selector  
   `(:and e :link)`
-* The first formatted line of an E element  
+* The first formatted line of an `e` element  
   `(:and e |::first-line|)` or `(:and e "::first-line")`
-* An E element with a "warning" class  
+* An `e` element with a "warning" class  
   `e.warning`
-* An E element with ID equal to "warning"  
+* An `e` element with ID equal to `warning`  
   `|e#warning|` or `"e#warning"`
-* An E element with a "foo" attribute  
+* An `e` element with a `foo` attribute  
   `e[foo]`
-* An E element whose "foo" attribute value is exactly equal to "bar"  
+* An `e` element whose `foo` attribute value is exactly equal to `bar`  
   `(:and :a (:= foo "bar"))`
-* An E element whose "foo" attribute value is a list of whitespace-separated values, one of which is exactly equal to "bar"  
+* An `e` element whose `foo` attribute value is a list of whitespace-separated values, one of which is exactly equal to `bar`  
   `(:and :a (:~= foo "bar"))`
-* An E element whose "foo" attribute has a hyphen-separated list of values beginning (from the left) with "bar"  
+* An `e` element whose `foo` attribute has a hyphen-separated list of values beginning (from the left) with `bar`  
   `(:and :a (:/= foo "bar"))`
-* An E element whose "foo" attribute value begins exactly with the string "bar"  
+* An `e` element whose `foo` attribute value begins exactly with the string `bar`  
   `(:and :a (:^= foo "bar"))`
-* An E element whose "foo" attribute value ends exactly with the string "bar"  
+* An `e` element whose `foo` attribute value ends exactly with the string `bar`  
   `(:and :a (:$= foo "bar"))`
-* An E element whose "foo" attribute value contains the substring "bar"  
+* An `e` element whose `foo` attribute value contains the substring `bar`  
   `(:and :a (:*= foo "bar"))`
-* An F element preceded by an E element  
+* An `f` element preceded by an `e` element  
   `(e ~ f)`
-* An F element immediately precede by an E element  
+* An `f` element immediately precede by an `e` element  
   `(e + f)`
-* An F element which is a descendant of E  
+* An `f` element which is a descendant of `e`  
   `(e f)`
-* An F element which is a direct descendant of E
+* An `f` element which is a direct descendant of `e`
   `(e > f)`
 
 Extending LASS
