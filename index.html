@@ -30,7 +30,7 @@
 
 <p>Writing CSS files comes with a lot of repetition and is generally much too verbose. With lispy syntax, shortcuts, and improvements, LASS aims to help you out in writing CSS quick and easy. LASS was largely inspired by <a href="http://sass-lang.com/">SASS</a>.</p>
 
-<h2>How To</h2>
+<h2>How To &amp; Examples</h2>
 
 <p>LASS supports two modes, one being directly in your lisp code, the other in pure LASS files. Adding LASS into your code is easy:</p>
 
@@ -198,7 +198,14 @@ article p a:hover, article blockquote a:hover{
 
 <p><img src="http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png" alt="generate-example"/></p>
 
-<h2>LASS Selector Syntax</h2>
+<h2>Blocks</h2>
+
+<p>Each block in a LASS sheet consists of a list containing a selector followed by one or more properties or sub-blocks. </p>
+
+<pre><code>(selector [property | block]*)
+</code></pre>
+
+<h2>Selectors</h2>
 
 <p>The following list contains examples for the various uses of selectors.</p>
 
@@ -207,6 +214,8 @@ article p a:hover, article blockquote a:hover{
   <code>*</code></li>
 <li>An element with tag-name <code>e</code><br/>
   <code>e</code></li>
+<li>An element with tag-name <code>e</code> or <code>f</code><br/>
+  <code>(:or e f)</code></li>
 <li>An <code>e</code> element with the <code>:link</code> pseudo-selector<br/>
   <code>(:and e :link)</code></li>
 <li>The first formatted line of an <code>e</code> element<br/>
@@ -229,15 +238,77 @@ article p a:hover, article blockquote a:hover{
   <code>(:and :a (:$= foo &quot;bar&quot;))</code></li>
 <li>An <code>e</code> element whose <code>foo</code> attribute value contains the substring <code>bar</code><br/>
   <code>(:and :a (:*= foo &quot;bar&quot;))</code></li>
+<li>An <code>e</code> element that matches the pseudo-selector <code>nth-child(2)</code><br/>
+  <code>(e (:nth-child 2))</code></li>
 <li>An <code>f</code> element preceded by an <code>e</code> element<br/>
   <code>(e ~ f)</code></li>
 <li>An <code>f</code> element immediately precede by an <code>e</code> element<br/>
   <code>(e + f)</code></li>
 <li>An <code>f</code> element which is a descendant of <code>e</code><br/>
   <code>(e f)</code></li>
-<li>An <code>f</code> element which is a direct descendant of <code>e</code>
+<li>An <code>f</code> element which is a direct descendant of <code>e</code><br/>
   <code>(e &gt; f)</code></li>
 </ul>
+
+<h2>Selector Combinations</h2>
+
+<p>As illustrated briefly above, LASS includes two combinators for selectors, <code>:and</code> and <code>:or</code>. These combinators are <em>combinatoric</em>, meaning that all possible combinations are explored. Consider the following selector:</p>
+
+<pre><code>((foo (:and a .title (:or :active :hover)) (:or span div)))
+</code></pre>
+
+<p>Enumerating all possible answers to this combination would result in the following list</p>
+
+<pre><code>foo a.title:active span
+foo a.title:active div
+foo a.title:hover span
+foo a.title:hover div
+</code></pre>
+
+<p>The number of possible combinations can quickly explode in size the more options are available. This means that for complex relations and expressions, LASS can be extremely concise. Note that combinators are available at any position in a selector, this includes the arguments of a pseudo-selector like <code>:nth-child</code>.</p>
+
+<h2>Properties</h2>
+
+<p>A property consists of a keyword symbol and a sequence of values. The values to a property are gathered up until either a non-value list or a new keyword is encountered. Originally it stopped as soon as a list was encountered, but this behaviour was changed and specially recognised lists are integrated to allow a more native look for certain values like colours, urls, and so on. Certain properties are specifically declared and will error if they are passed the wrong number or invalid kind of values. For most however, LASS will just blindly put things into the CSS file as you give them. It is up to you to make sure that the values are valid.</p>
+
+<pre><code>:text-style underline
+:color (rgb 212 112 30)
+:background (url &quot;/foo&quot;)
+:border 1px solid black
+</code></pre>
+
+<p>Certain properties currently still require vendor-specific declarations. LASS tries to do that automatically for you, but it also needs to know about these declarations and as such, they need to be manually added. Some of the more common ones are included in LASS by default, but if you encounter one that isn't, you are welcome to send a pull request (see Extending LASS on how to do it).</p>
+
+<h2>Sub-Blocks</h2>
+
+<p>A block can contain other blocks. These sub-blocks are recursively flattened into the structure by simply prepending the selector of the parent block. Thus</p>
+
+<pre><code>(foo (bar (baz) (bam)))
+</code></pre>
+
+<p>Is equivalent to</p>
+
+<pre><code>(foo) ((foo bar)) ((foo bar baz)) ((foo bar bam))
+</code></pre>
+
+<p>Allowing this kind of nesting allows you to more closely mirror the structure present in your HTML file that you want to style. Combining this with the selector combinations, this system allows reducing code duplication a lot.</p>
+
+<h2>Special Blocks</h2>
+
+<p>In CSS3 there are special properties and blocks that are preceded by an <code>@</code> symbol. The most well-known examples therefore are probably <code>@include</code> and <code>@media</code>. LASS implements all of these special blocks by a keyword symbol equivalent selector. Therefore the above two would translate to the following in LASS.</p>
+
+<pre><code>(:include (url &quot;foo&quot;))
+(:media &quot;(max-width: 800px)&quot;
+ (foo))
+</code></pre>
+
+<h2>Variables</h2>
+
+<p>Often times it is useful to define variables that you can use within your style so that colours and fonts can quickly be exchanged. LASS allows you to do that too using the <code>:let</code> directive and by abusing the vector type. It is probably best illustrated using an example:</p>
+
+<pre><code>(:let ((foo &quot;#0088EE&quot;))
+  ((a:active) :color #(foo)))
+</code></pre>
 
 <h2>Extending LASS</h2>
 
@@ -661,7 +732,7 @@ if *PRETTY* is non-NIL.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-BROWSER-PROPERTY">DEFINE-BROWSER-PROPERTY</a></h4>
                       <span></span>
-                      <span>(NAME ARGS &amp;BODY BROWSER-OPTIONS)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Helper macro to define properties that have browser-dependant versions.
@@ -686,7 +757,7 @@ is used as a fallback.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-PRIMITIVE-PROPERTY-CONSUMER">DEFINE-PRIMITIVE-PROPERTY-CONSUMER</a></h4>
                       <span></span>
-                      <span>(SPECIALIZER (PROPVALS READABLE NEXT) &amp;BODY LOOP-BODY)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Defines a CONSUME-ITEM method for the given item SPECIALIZER.
@@ -708,7 +779,7 @@ for example for when you encounter an item you don't want to read.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION">DEFINE-PROPERTY-FUNCTION</a></h4>
                       <span></span>
-                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Define a new property function NAME, accepting ARGS. 
@@ -732,7 +803,7 @@ to handle the reading of the property values manually.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-PROPERTY-FUNCTION-CASE">DEFINE-PROPERTY-FUNCTION-CASE</a></h4>
                       <span></span>
-                      <span>(PROPERTY (ARGS) &amp;BODY FUNCTION-CLAUSES)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
@@ -753,7 +824,7 @@ You can use (RETURN) in a clause body to stop reading values altogether.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTION">DEFINE-SIMPLE-PROPERTY-FUNCTION</a></h4>
                       <span></span>
-                      <span>(NAME ARGS)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Defines a property function that returns name(arg1,arg2...).
@@ -767,7 +838,7 @@ Only required arguments are allowed.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SIMPLE-PROPERTY-FUNCTIONS">DEFINE-SIMPLE-PROPERTY-FUNCTIONS</a></h4>
                       <span></span>
-                      <span>(PROPERTY &amp;REST FUNCSPECS)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
@@ -785,7 +856,7 @@ See DEFINE-PROPERTY-FUNCTION-CASE.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SINGLE-ARG-SELECTOR">DEFINE-SINGLE-ARG-SELECTOR</a></h4>
                       <span></span>
-                      <span>(NAME)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD.</pre>
@@ -798,7 +869,7 @@ See DEFINE-PROPERTY-FUNCTION-CASE.</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-BLOCK">DEFINE-SPECIAL-BLOCK</a></h4>
                       <span></span>
-                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Define handling of a special block type.
@@ -817,7 +888,7 @@ See COMPILE-BLOCK</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-PROPERTY">DEFINE-SPECIAL-PROPERTY</a></h4>
                       <span></span>
-                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Define handling of a special property.
@@ -835,7 +906,7 @@ See COMPILE-PROPERTY</pre>
                     <code>
                       <h4><a href="#LASS:DEFINE-SPECIAL-SELECTOR">DEFINE-SPECIAL-SELECTOR</a></h4>
                       <span></span>
-                      <span>(NAME ARGS &amp;BODY BODY)</span>
+                      <span>(&amp;REST ARGS)</span>
                     </code>
                   </header>
                   <pre>Define handling of a special selector type.
