@@ -2,8 +2,8 @@ About LASS
 ----------
 Writing CSS files comes with a lot of repetition and is generally much too verbose. With lispy syntax, shortcuts, and improvements, LASS aims to help you out in writing CSS quick and easy. LASS was largely inspired by [SASS](http://sass-lang.com/).
 
-How To
-------
+How To & Examples
+-----------------
 LASS supports two modes, one being directly in your lisp code, the other in pure LASS files. Adding LASS into your code is easy:
 
     (lass:compile-and-write
@@ -161,14 +161,22 @@ As mentioned above you can write pure LASS files to compile down to a CSS file. 
 
 ![generate-example](http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png)
 
-LASS Selector Syntax
---------------------
+Blocks
+------
+Each block in a LASS sheet consists of a list containing a selector followed by one or more properties or sub-blocks. 
+
+    (selector [property | block]*)
+
+Selectors
+---------
 The following list contains examples for the various uses of selectors.
 
 * Any element  
   `*`
 * An element with tag-name `e`  
   `e`
+* An element with tag-name `e` or `f`  
+  `(:or e f)`
 * An `e` element with the `:link` pseudo-selector  
   `(:and e :link)`
 * The first formatted line of an `e` element  
@@ -191,14 +199,71 @@ The following list contains examples for the various uses of selectors.
   `(:and :a (:$= foo "bar"))`
 * An `e` element whose `foo` attribute value contains the substring `bar`  
   `(:and :a (:*= foo "bar"))`
+* An `e` element that matches the pseudo-selector `nth-child(2)`  
+  `(e (:nth-child 2))`
 * An `f` element preceded by an `e` element  
   `(e ~ f)`
 * An `f` element immediately precede by an `e` element  
   `(e + f)`
 * An `f` element which is a descendant of `e`  
   `(e f)`
-* An `f` element which is a direct descendant of `e`
+* An `f` element which is a direct descendant of `e`  
   `(e > f)`
+
+
+Selector Combinations
+---------------------
+As illustrated briefly above, LASS includes two combinators for selectors, `:and` and `:or`. These combinators are *combinatoric*, meaning that all possible combinations are explored. Consider the following selector:
+
+    ((foo (:and a .title (:or :active :hover)) (:or span div)))
+
+Enumerating all possible answers to this combination would result in the following list
+
+    foo a.title:active span
+    foo a.title:active div
+    foo a.title:hover span
+    foo a.title:hover div
+
+The number of possible combinations can quickly explode in size the more options are available. This means that for complex relations and expressions, LASS can be extremely concise. Note that combinators are available at any position in a selector, this includes the arguments of a pseudo-selector like `:nth-child`.
+
+Properties
+----------
+A property consists of a keyword symbol and a sequence of values. The values to a property are gathered up until either a non-value list or a new keyword is encountered. Originally it stopped as soon as a list was encountered, but this behaviour was changed and specially recognised lists are integrated to allow a more native look for certain values like colours, urls, and so on. Certain properties are specifically declared and will error if they are passed the wrong number or invalid kind of values. For most however, LASS will just blindly put things into the CSS file as you give them. It is up to you to make sure that the values are valid.
+
+    :text-style underline
+    :color (rgb 212 112 30)
+    :background (url "/foo")
+    :border 1px solid black
+
+Certain properties currently still require vendor-specific declarations. LASS tries to do that automatically for you, but it also needs to know about these declarations and as such, they need to be manually added. Some of the more common ones are included in LASS by default, but if you encounter one that isn't, you are welcome to send a pull request (see Extending LASS on how to do it).
+
+Sub-Blocks
+----------
+A block can contain other blocks. These sub-blocks are recursively flattened into the structure by simply prepending the selector of the parent block. Thus
+
+    (foo (bar (baz) (bam)))
+
+Is equivalent to
+
+    (foo) ((foo bar)) ((foo bar baz)) ((foo bar bam))
+
+Allowing this kind of nesting allows you to more closely mirror the structure present in your HTML file that you want to style. Combining this with the selector combinations, this system allows reducing code duplication a lot.
+
+Special Blocks
+--------------
+In CSS3 there are special properties and blocks that are preceded by an `@` symbol. The most well-known examples therefore are probably `@include` and `@media`. LASS implements all of these special blocks by a keyword symbol equivalent selector. Therefore the above two would translate to the following in LASS.
+
+    (:include (url "foo"))
+    (:media "(max-width: 800px)"
+     (foo))
+
+Variables
+---------
+Often times it is useful to define variables that you can use within your style so that colours and fonts can quickly be exchanged. LASS allows you to do that too using the `:let` directive and by abusing the vector type. It is probably best illustrated using an example:
+
+    (:let ((foo "#0088EE"))
+      ((a:active) :color #(foo)))
+
 
 Extending LASS
 --------------
