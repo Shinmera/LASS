@@ -17,7 +17,7 @@
     rgba (red green blue alpha)
     hsl (hue saturation lightness)
     hsla (hue saturation lightness alpha)))
-(define-property-function hex (hex) (format NIL "#~a" hex))
+(define-property-function hex (hex) (format NIL "#~6,'0d" hex))
 
 ;;; BLOCKS
 
