@@ -202,6 +202,10 @@ is used as a fallback."
   (:default (property)
     (make-property property (resolve value))))
 
+(define-browser-property appearance (value)
+  (:default (property)
+    (make-property property (resolve value))))
+
 (define-simple-property-functions :filter
     (url (url))
   (blur (radius))
