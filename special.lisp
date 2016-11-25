@@ -19,6 +19,21 @@
     hsla (hue saturation lightness alpha)))
 (define-property-function hex (hex) (format NIL "#~6,'0d" hex))
 
+(define-property-function calc (func)
+  (with-output-to-string (out)
+    (labels ((proc (func)
+               (if (listp func)
+                   (destructuring-bind (func first &rest rest) func
+                     (format out "(")
+                     (proc first)
+                     (loop for arg in rest
+                           do (format out " ~a " (resolve func))
+                              (proc arg))
+                     (format out ")"))
+                   (format out (resolve func)))))
+      (write-string "calc" out)
+      (proc func))))
+
 ;;; BLOCKS
 
 (define-special-block charset (charset)
