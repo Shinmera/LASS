@@ -141,7 +141,15 @@
              (char= #\' (char content 0))
              (char= #\' (char content (1- (length content)))))
     (setf content (subseq content 1 (1- (length content)))))
-  (list (make-property "content" (format NIL "~s" content))))
+  (list (make-property "content"
+                       (with-output-to-string (out)
+                         (write-char #\" out)
+                         (unwind-protect
+                              (loop for char across content
+                                    do (when (char= char #\")
+                                         (write-char #\\ out))
+                                       (write-char char out))
+                           (write-char #\" out))))))
 
 (defmacro define-browser-property (name args &body browser-options)
   "Helper macro to define properties that have browser-dependant versions.
