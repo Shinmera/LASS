@@ -12,12 +12,12 @@
                 ,@(loop for (name args) on rest by #'cddr
                         collect `(define-simple-property-function ,name ,args)))))
   (define-properties
-    url (url)
     rgb (red green blue)
     rgba (red green blue alpha)
     hsl (hue saturation lightness)
     hsla (hue saturation lightness alpha)))
 (define-property-function hex (hex) (format NIL "#~6,'0d" hex))
+(define-property-function url (url) (format NIL "url(~s)" url))
 
 (define-property-function calc (func)
   (with-output-to-string (out)
