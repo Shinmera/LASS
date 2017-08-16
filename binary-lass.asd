@@ -4,10 +4,6 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(defpackage #:org.tymoonnext.lass.binary.asdf
-  (:use #:cl #:asdf))
-(in-package #:org.tymoonnext.lass.binary.asdf)
-
 (defsystem binary-lass
   :name "LASS Binary"
   :version "0.1.1"

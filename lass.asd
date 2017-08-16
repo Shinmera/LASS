@@ -4,10 +4,6 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(defpackage #:org.tymoonnext.lass.asdf
-  (:use #:cl #:asdf))
-(in-package #:org.tymoonnext.lass.asdf)
-
 (defsystem lass
   :name "LASS"
   :version "0.5.0"
