@@ -178,6 +178,10 @@ is used as a fallback."
 
 (indent:define-indentation define-browser-property (4 6 &rest (&whole 2 0 4 2)))
 
+(define-browser-property text-stroke (width color)
+  (:default (property)
+    (make-property property (format NIL "~a ~a" (resolve width) (resolve color)))))
+
 (define-browser-property linear-gradient (direction &rest colors)
   (:default (property)
     (make-property "background" (format NIL "~a(~a~{, ~a ~a~})"
