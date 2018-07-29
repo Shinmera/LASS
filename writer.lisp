@@ -34,22 +34,57 @@ necessary if *PRETTY* is non-NIL.
 Prints the KEY. If VALUE is non-NIL, a colon is printed followed by the
 VALUE. Finally a semicolon is printed. Spaces may be inserted where necessary
 if *PRETTY* is non-NIL.")
+  (:method ((type (eql :superblock)) block stream)
+    (when (and block (cddr block))
+      (destructuring-bind (type selector &rest blocks) block
+        (format stream "~a@~a" (indent) type)
+        (when selector
+          (format stream " ")
+          (let ((*indent-level* (+ *indent-level* 2 (length type))))
+            (write-sheet-object (car selector) (cdr selector) stream)))
+        (format stream "{")
+        (let ((*indent-level* (+ *indent-level* 4)))
+          (dolist (block blocks)
+            (when *pretty* (fresh-line stream))
+            (write-sheet-object (car block) (cdr block) stream)))
+        (format stream "~@[~&~*~]~a}" *pretty* (indent)))))
+  
   (:method ((type (eql :block)) block stream)
     (when (and block (cdr block))
-      (let ((true-format (format NIL "~a~~{~~a~~^,~@[~%~:*~a~* ~]~~}{~:*~@[~*~%~]~~{~~/lass::write-sheet-part/~~^~:*~@[~*~%~]~~}~:*~@[~*~%~]~:*~:*~a~*}"
-                                 (indent) *pretty*))
-            (*indent-level* (+ *indent-level* 4)))
-        (format stream true-format
-                (car block) (cdr block)))))
+      (destructuring-bind (selector &rest body) block
+        (format stream "~a" (indent))
+        (write-sheet-object (car selector) (cdr selector) stream)
+        (format stream "{")
+        (let ((*indent-level* (+ *indent-level* 4)))
+          (dolist (inner body)
+            (when *pretty* (fresh-line stream))
+            (write-sheet-object (car inner) (cdr inner) stream)))
+        (format stream "~@[~&~*~]~a}" *pretty* (indent)))))
 
   (:method ((type (eql :property)) attribute stream)
     (when attribute
-      (format stream (format NIL "~a~~a~~@[:~@[~* ~]~~a~~];" (indent) *pretty*)
-              (first attribute) (second attribute))))
+      (format stream "~a~a~:[~@[:~a~]~;~@[: ~a~]~];" (indent) (first attribute) *pretty* (second attribute))))
+  
+  (:method ((type (eql :constraint)) constraint stream)
+    (ecase (first constraint)
+      ((NIL))
+      (:child (format stream "~{~/lass::write-sheet-part/~^ ~}" (rest constraint)))
+      (:concat (format stream "~{~/lass::write-sheet-part/~}" (rest constraint)))
+      (:property (format stream "(~a:~@[~* ~]~a)" (second constraint) *pretty* (third constraint)))
+      (:and (format stream "~{~/lass::write-sheet-part/~^ and ~}" (rest constraint)))
+      (:literal (format stream "~a" (second constraint)))))
 
   (:method ((type (eql :text)) block stream)
     (when block
-      (format stream "~{~a~}~@[~*~%~]" block *pretty*))))
+      (format stream "~{~a~}~@[~*~%~]" block *pretty*)))
+
+  (:method ((type (eql :selector)) constraints stream)
+    (when constraints
+      (write-sheet-object (car (first constraints)) (cdr (first constraints)) stream)
+      (dolist (constraint (rest constraints))
+        (format stream ",")
+        (when *pretty* (format stream "~&~a" (indent)))
+        (write-sheet-object (car constraint) (cdr constraint) stream)))))
 
 (defun write-sheet-part (stream block cp ap)
   "Wrapper around WRITE-SHEET-OBJECT so that we can call it from FORMAT.

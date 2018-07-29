@@ -6,7 +6,7 @@
 
 (defsystem lass
   :name "LASS"
-  :version "0.5.0"
+  :version "0.6.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"

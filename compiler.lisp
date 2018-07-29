@@ -57,7 +57,11 @@ T:        PRINC-TO-STRING of THING")
 
 (defun make-block (selector values)
   "Creates a block object with SELECTOR and VALUES."
-  (cons :block (cons selector values)))
+  (list* :block (list* :selector selector) values))
+
+(defun make-superblock (type selector blocks)
+  "Creates a block object that can contain other blocks, such as @media, etc."
+  (list* :superblock type (when selector (list* :selector selector)) blocks))
 
 (defgeneric compile-property (key value)
   (:documentation "Compile a property of KEY and VALUE to a list of property objects.
@@ -124,12 +128,14 @@ See DEFINE-SPECIAL-SELECTOR.")
       (loop with result = ()
             for func in cfunc
             do (loop for arg in cargs
-                     do (push (format NIL "~a ~a" func arg) result))
+                     do (push (list :constraint :child func arg) result))
             finally (return (compile-constraint (nreverse result) (cdr args))))))
   (:method ((func null) (args null))
     NIL)
   (:method (func (args null))
     func)
+  (:method ((func (eql :constraint)) args)
+    (list (list* func args)))
   (:method ((func (eql :or)) args)
     (apply #'append (mapcar #'compile-selector args)))
   (:method ((func (eql :and)) args)
@@ -140,7 +146,7 @@ See DEFINE-SPECIAL-SELECTOR.")
             (loop with result = ()
                   for func in cfunc
                   do (loop for arg in cargs
-                           do (push (format NIL "~a~a" func arg) result))
+                           do (push (list :constraint :concat func arg) result))
                   finally (return (compile-constraint :and (cons (cons :OR (nreverse result)) (cddr args))))))
           (if (and (listp (first args)) (eql (first (first args)) :OR))
               (rest (first args))
@@ -163,7 +169,43 @@ Returns a list with the RESOLVEd SELECTOR.")
   (:method ((selector list))
     (compile-constraint (car selector) (cdr selector)))
   (:method ((selector T))
-    (list (resolve selector))))
+    (list (list :constraint :literal (resolve selector)))))
+
+(defgeneric compile-media-constraint (func args)
+  (:method (func args)
+    (loop for prop in (compile-property func args)
+          collect (list* :constraint prop)))
+  (:method ((func null) (args null))
+    NIL)
+  (:method (func (args null))
+    func)
+  (:method ((func (eql :or)) args)
+    (loop for arg in args
+          nconc (compile-media-query arg)))
+  (:method ((func (eql :constraint)) args)
+    (list (list* func args)))
+  (:method ((func (eql :property)) args)
+    (list (list* :constraint func args)))
+  (:method ((func (eql :and)) args)
+    (cond ((rest args)
+           (let ((cfunc (compile-media-query (first args)))
+                 (cargs (compile-media-query (second args))))
+             (loop with result = ()
+                   for func in cfunc
+                   do (loop for arg in cargs
+                            do (push (list :constraint :and func arg) result))
+                   finally (return (compile-media-constraint :and (list* (list* :or (nreverse result))
+                                                                         (cddr args)))))))
+          (args
+           (compile-media-query (first args))))))
+
+(defgeneric compile-media-query (query)
+  (:method ((query null))
+    NIL)
+  (:method ((query list))
+    (compile-media-constraint (car query) (cdr query)))
+  (:method ((query T))
+    (list (list :constraint :literal (resolve query)))))
 
 (defgeneric consume-item (item readable-list)
   (:documentation "Consumes items from READABLE-LIST as required by the ITEM.

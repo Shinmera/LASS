@@ -62,11 +62,11 @@
            (list (format NIL "@keyframes ~a" (resolve identifier)))
            inner))))
 
-(define-special-block media (selector &rest body)
-  (let ((inner (apply #'compile-sheet body)))
-    (list (make-block
-           (list (format NIL "@media~{ ~a~^,~}" (compile-selector selector)))
-           inner))))
+(define-special-block media (query &rest body)
+  (list (make-superblock
+         "media"
+         (compile-media-query query)
+         (apply #'compile-sheet body))))
 
 (define-special-block namespace (prefix/namespace &optional namespace)
   (list (make-property
