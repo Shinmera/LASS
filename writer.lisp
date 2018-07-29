@@ -72,6 +72,7 @@ if *PRETTY* is non-NIL.")
       (:concat (format stream "~{~/lass::write-sheet-part/~}" (rest constraint)))
       (:property (format stream "(~a:~@[~* ~]~a)" (second constraint) *pretty* (third constraint)))
       (:and (format stream "~{~/lass::write-sheet-part/~^ and ~}" (rest constraint)))
+      (:func (format stream "~a(~{~a~^,~})" (second constraint) (cddr constraint)))
       (:literal (format stream "~a" (second constraint)))))
 
   (:method ((type (eql :text)) block stream)

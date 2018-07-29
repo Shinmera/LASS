@@ -42,10 +42,10 @@
   (list (list :property (format NIL "@charset ~a" (resolve charset)))))
 
 (define-special-block document (selector &rest body)
-  (let ((inner (apply #'compile-sheet body)))
-    (list (make-block
-           (list (format NIL "@document~{ ~a~^,~}" (compile-selector selector)))
-           inner))))
+  (list (make-superblock
+         "document"
+         (compile-media-query selector)
+         (apply #'compile-sheet body))))
 
 (define-special-block font-face (&rest body)
   (compile-block "@font-face" body))
@@ -57,10 +57,10 @@
                  (mapcar #'resolve media-queries)))))
 
 (define-special-block keyframes (identifier &rest body)
-  (let ((inner (apply #'compile-sheet body)))
-    (list (make-block
-           (list (format NIL "@keyframes ~a" (resolve identifier)))
-           inner))))
+  (list (make-superblock
+         "keyframes"
+         (list (list :constraint :literal (resolve identifier)))
+         (apply #'compile-sheet body))))
 
 (define-special-block media (query &rest body)
   (list (make-superblock
@@ -81,10 +81,10 @@
                              (resolve pseudo-class))) body))
 
 (define-special-block supports (selector &rest body)
-  (let ((inner (apply #'compile-sheet body)))
-    (list (make-block
-           (list (format NIL "@supports~{ ~a~^,~}" (compile-selector selector)))
-           inner))))
+  (list (make-superblock
+         "supports"
+         (compile-selector selector)
+         (apply #'compile-sheet body))))
 
 (defmacro bind-vars (bindings &body body)
   `(let ((*vars* (let ((table (make-hash-table)))
