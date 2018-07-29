@@ -108,7 +108,7 @@
            with values = (compile-selector value)
            for attr in (compile-selector attr)
            do (loop for value in values
-                    do (push (format NIL ,"[~a~a\"~a\"]" attr ,(string outcomp) value) out))
+                    do (push (list :constraint :attribute attr ,(string outcomp) value) out))
            finally (return (nreverse out)))))
 
 (define-attr-comparator =)
@@ -122,7 +122,7 @@
   "Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD."
   `(define-special-selector ,name (arg)
      (loop for arg in (compile-selector arg)
-           collect (format NIL ":~a(~a)" ,(string-downcase name) arg))))
+           collect (list :constraint :selector ,(string-downcase name) arg))))
 
 (define-single-arg-selector dir)
 (define-single-arg-selector lang)

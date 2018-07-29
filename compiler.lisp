@@ -128,7 +128,7 @@ See DEFINE-SPECIAL-SELECTOR.")
       (loop with result = ()
             for func in cfunc
             do (loop for arg in cargs
-                     do (push (list :constraint :child func arg) result))
+                     do (push (list :constraint :combine " " func arg) result))
             finally (return (compile-constraint (nreverse result) (cdr args))))))
   (:method ((func null) (args null))
     NIL)
@@ -146,7 +146,7 @@ See DEFINE-SPECIAL-SELECTOR.")
             (loop with result = ()
                   for func in cfunc
                   do (loop for arg in cargs
-                           do (push (list :constraint :concat func arg) result))
+                           do (push (list :constraint :combine "" func arg) result))
                   finally (return (compile-constraint :and (cons (cons :OR (nreverse result)) (cddr args))))))
           (if (and (listp (first args)) (eql (first (first args)) :OR))
               (rest (first args))
