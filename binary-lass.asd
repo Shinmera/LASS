@@ -11,7 +11,9 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "System to create a binary executable for LASS."
-  :homepage "https://github.com/Shinmera/LASS"
+  :homepage "https://Shinmera.github.io/LASS/"
+  :bug-tracker "https://github.com/Shinmera/LASS/issues"
+  :source-control (:git "https://github.com/Shinmera/LASS.git")
   :serial T
   :components ((:file "binary"))
   :depends-on (:lass))
