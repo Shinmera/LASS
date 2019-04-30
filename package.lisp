@@ -47,6 +47,7 @@
   (:export
    #:*pretty*
    #:*indent-level*
+   #:*indent-spaces*
    #:indent
    #:write-sheet-object
    #:write-sheet-part
