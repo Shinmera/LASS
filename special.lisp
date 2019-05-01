@@ -143,25 +143,26 @@
 (define-special-property font-family (&rest faces)
   (list (make-property "font-family" (format NIL "~{~a~^, ~}" (mapcar #'resolve faces)))))
 
-(define-special-property content (content)
-  ;; Backwards compat with the usage of "'foo'" in LASS files
-  (typecase content
-    (string
-     (when (and (<= 2 (length content))
-                (char= #\' (char content 0))
-                (char= #\' (char content (1- (length content)))))
-       (setf content (subseq content 1 (1- (length content)))))
-     (list (make-property "content"
-                          (with-output-to-string (out)
-                            (write-char #\" out)
-                            (unwind-protect
-                                 (loop for char across content
-                                       do (when (char= char #\")
-                                            (write-char #\\ out))
-                                          (write-char char out))
-                              (write-char #\" out))))))
-    (T
-     (list (make-property "content" (resolve content))))))
+(define-special-property content (&rest content)
+  (labels ((translate (content)
+             (typecase content
+               (string
+                ;; Backwards compat with the usage of "'foo'" in LASS files
+                (when (and (<= 2 (length content))
+                           (char= #\' (char content 0))
+                           (char= #\' (char content (1- (length content)))))
+                  (setf content (subseq content 1 (1- (length content)))))
+                (with-output-to-string (out)
+                  (write-char #\" out)
+                  (unwind-protect
+                       (loop for char across content
+                             do (when (char= char #\")
+                                  (write-char #\\ out))
+                                (write-char char out))
+                    (write-char #\" out))))
+               (T
+                (resolve content)))))
+    (list (make-property "content" (format NIL "~{~a~^ ~}" (mapcar #'translate content))))))
 
 (defmacro define-browser-property (name args &body browser-options)
   "Helper macro to define properties that have browser-dependant versions.
