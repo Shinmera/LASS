@@ -18,21 +18,27 @@
     hsla (hue saturation lightness alpha)))
 (define-property-function hex (hex) (format NIL "#~6,'0d" hex))
 (define-property-function url (url) (format NIL "url(~s)" url))
+(define-property-function attr (attribute) (format NIL "attr(~a)" (resolve attribute)))
+
+;;; https://www.w3.org/TR/css-variables-1/
+(define-property-function var (name &rest fallback-vals)
+  (format nil "var(~(~A~)~{~^, ~(~A~)~})" name fallback-vals))
 
 (define-property-function calc (func)
   (with-output-to-string (out)
     (labels ((proc (func)
-               (if (listp func)
+               (if (or (not (listp func))
+                       (property-function (first func)))
+                   (write-string (resolve func) out)
                    (destructuring-bind (func first &rest rest) func
-                     (format out "(")
+                     (write-string "(" out)
                      (proc first)
-                     (loop for arg in rest
-                           do (format out " ~a " (resolve func))
-                              (proc arg))
-                     (format out ")"))
-                   (format out (resolve func)))))
+                     (loop :for arg :in rest
+                           :do (format out " ~A " (resolve func))
+                               (proc arg))
+                     (write-string ")" out)))))
       (write-string "calc" out)
-      (proc func))))
+      (proc func)))) 
 
 (define-simple-property-function counter (var))
 
