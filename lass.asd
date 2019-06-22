@@ -7,7 +7,7 @@
 (defsystem lass
   :name "LASS"
   :version "0.6.0"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Lisp Augmented Style Sheets. Compiles LASS to CSS."

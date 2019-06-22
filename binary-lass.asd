@@ -7,7 +7,7 @@
 (defsystem binary-lass
   :name "LASS Binary"
   :version "0.1.1"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "System to create a binary executable for LASS."
