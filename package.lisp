@@ -42,7 +42,8 @@
   ;; special.lisp
   (:export
    #:define-single-arg-selector
-   #:define-browser-property)
+   #:define-browser-property
+   #:*current-file*)
   ;; writer.lisp
   (:export
    #:*pretty*

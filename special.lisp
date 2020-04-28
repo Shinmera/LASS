@@ -38,11 +38,28 @@
                                (proc arg))
                      (write-string ")" out)))))
       (write-string "calc" out)
-      (proc func)))) 
+      (proc func))))
 
 (define-simple-property-function counter (var))
 
 ;;; BLOCKS
+(defparameter *current-file* nil
+  "Current LASS file path")
+
+(define-special-block include (file)
+  (let* ((eof (gensym "EOF"))
+         (in (resolve file))
+         (parent-dir (if *current-file*
+                         (cl-fad:pathname-directory-pathname *current-file*)
+                         #p"./"))
+         (path (cl-fad:merge-pathnames-as-file parent-dir in))
+         (*current-file* path))
+    (bind-vars* '()
+      (apply #'compile-sheet
+             (with-open-file (instream path :direction :input)
+               (loop for read = (read instream NIL eof)
+                     until (eql read eof)
+                     collect read))))))
 
 (define-special-block charset (charset)
   (list (list :property (format NIL "@charset ~a" (resolve charset)))))
@@ -101,9 +118,29 @@
                    table)))
      ,@body))
 
+(defmacro bind-vars* (bindings &body body)
+  `(let ((*vars* (let ((table (make-hash-table)))
+                   (maphash #'(lambda (k v) (setf (gethash k table) v)) *vars*)
+                   table)))
+     (progn
+       (loop for (k v) in ,bindings
+             do (setf (gethash k *vars*)
+                      (resolve v)))
+       ,@body)))
+
 (define-special-block let (bindings &rest body)
   (bind-vars bindings
-             (apply #'compile-sheet body)))
+    (apply #'compile-sheet body)))
+
+(define-special-block let* (bindings &rest body)
+  (bind-vars* bindings
+    (apply #'compile-sheet body)))
+
+
+;;; Function for constructing property value lists in let/let* bindings
+(setf (property-function "values")
+      (lambda (&rest args) (format nil "~{~a~^ ~}" (mapcar #'resolve args))))
+
 
 ;;; SELECTORS
 

@@ -53,7 +53,9 @@ PRETTY    --- Whether to minify or not. See WRITE-SHEET.
 IF-EXISTS --- See WITH-OPEN-FILE
 
 Returns OUT"
-  (let ((eof (gensym "EOF")))
+  (let ((eof (gensym "EOF"))
+        (*current-file* in))
+    (declare (ignorable *current-file*))
     (with-open-file (outstream out :direction :output :if-exists if-exists)
       (write-sheet
        (apply #'compile-sheet

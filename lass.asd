@@ -22,7 +22,11 @@
                (:file "writer")
                (:file "lass")
                (:file "special")
+               (:file "units")
                (:file "asdf"))
   :depends-on (:trivial-indent
                :trivial-mimes
-               :cl-base64))
+               :physical-quantities
+               :parse-float
+               :cl-base64
+               :cl-fad))
