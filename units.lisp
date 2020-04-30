@@ -67,21 +67,13 @@
   "Parses CSS number wrapping it in pq:quantity if unit of measure is present"
   (cond ((stringp x)
          (multiple-value-bind (val idx) (parse-float x :junk-allowed t)
-           (if unit
-               (make-quantity :value val :unit (make-unit (list unit 1)))
-               (if (>= idx (length x))
-                   val
-                   (make-quantity :value val
-                                  :unit (make-unit
-                                         (list (subseq x
-                                                       ;;; TODO remove this hack after parse-float is fixed
-                                                       (if (or
-                                                            (char= #\e (char x (1- idx)))
-                                                            (char= #\E (char x (1- idx))))
-                                                           (1- idx)
-                                                           idx))
-                                               1)))
-                   ))))
+           (let ((q-unit (cond (unit unit)
+                               ((>= idx (length x)) nil)
+                               ((char-equal #\e (char x (1- idx))) (subseq x (1- idx)))
+                               (t (subseq x idx)))))
+             (if q-unit
+                 (make-quantity :value val :unit (make-unit (list q-unit 1)))
+                 val))))
         ((symbolp x)
          (parse-css-number (string x) :unit unit))
         (unit
@@ -94,22 +86,19 @@
   (if (quantityp q)
       (let ((units (unit q))
             (value (value q)))
-        (if (not (alexandria:emptyp units))
-            (multiple-value-bind (percents others)
-                (loop for u in units
-                      if (string= "%" (uf-unit u))
-                        collect u into percents
-                      else collect u into others
-                      finally (return (values percents others)))
-              (cond ((alexandria:emptyp percents)
-                     q)
-                    ((alexandria:emptyp others)
-                     (let ((power (- (uf-power (car percents)) 1)))
-                       (make-quantity :value (/ value (expt 100.0 power))
-                                      :unit (make-unit (list "%" (max 1 power))))))
-                    (t (make-quantity :value (/ value (expt 100.0 (uf-power (car percents))))
-                                      :unit others))))
-            q))
+        (multiple-value-bind (percents others)
+            (loop for u in units
+                  if (string= "%" (uf-unit u))
+                    collect u into percents
+                  else collect u into others
+                  finally (return (values percents others)))
+          (cond ((not percents) q)
+                ((not others)
+                 (let ((power (- (uf-power (car percents)) 1)))
+                   (make-quantity :value (/ value (expt 100.0 power))
+                                  :unit (make-unit (list "%" (max 1 power))))))
+                (t (make-quantity :value (/ value (expt 100.0 (uf-power (car percents))))
+                                  :unit others)))))
       q))
 
 (defun resolve-css-number (x)
@@ -118,9 +107,7 @@
       (let* ((q (reduce-percents x))
              (value (value q))
              (units (unit q))
-             (unit (if (alexandria:emptyp units)
-                       nil
-                       (uf-unit (car units)))))
+             (unit (when units (uf-unit (car units)))))
         (values (if (string= "%" unit) (/ value 100.0) value) unit value))
       (values x nil x)))
 

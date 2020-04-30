@@ -28,5 +28,4 @@
                :trivial-mimes
                :physical-quantities
                :parse-float
-               :cl-base64
-               :cl-fad))
+               :cl-base64))

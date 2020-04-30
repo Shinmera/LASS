@@ -43,24 +43,6 @@
 (define-simple-property-function counter (var))
 
 ;;; BLOCKS
-(defparameter *current-file* nil
-  "Current LASS file path")
-
-(define-special-block include (file)
-  (let* ((eof (gensym "EOF"))
-         (in (resolve file))
-         (parent-dir (if *current-file*
-                         (cl-fad:pathname-directory-pathname *current-file*)
-                         #p"./"))
-         (path (cl-fad:merge-pathnames-as-file parent-dir in))
-         (*current-file* path))
-    (bind-vars* '()
-      (apply #'compile-sheet
-             (with-open-file (instream path :direction :input)
-               (loop for read = (read instream NIL eof)
-                     until (eql read eof)
-                     collect read))))))
-
 (define-special-block charset (charset)
   (list (list :property (format NIL "@charset ~a" (resolve charset)))))
 
@@ -136,6 +118,32 @@
   (bind-vars* bindings
     (apply #'compile-sheet body)))
 
+(define-special-block include (file)
+  (format t "~A ~%" *current-file*)
+  (let* ((eof (gensym "EOF"))
+         (in (resolve file))
+         (parent-dir (if *current-file*
+                         (make-pathname :defaults *current-file*
+                                        :name nil :type nil)
+                         #p"./"))
+         (directory (pathname-directory in))
+         (parent-directory (pathname-directory parent-dir))
+         (path
+           (make-pathname :defaults parent-dir
+                          :directory (ecase (first directory)
+                                       ((nil) parent-directory)
+                                       (:absolute directory)
+                                       (:relative (append parent-directory (rest directory))))
+                          :name (pathname-name in)
+                          :type (pathname-type in)
+                          :version (pathname-version in)))
+         (*current-file* path))
+    (bind-vars* '()
+      (apply #'compile-sheet
+             (with-open-file (instream path :direction :input)
+               (loop for read = (read instream NIL eof)
+                     until (eql read eof)
+                     collect read))))))
 
 ;;; Function for constructing property value lists in let/let* bindings
 (setf (property-function "values")
