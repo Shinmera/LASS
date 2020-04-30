@@ -38,12 +38,11 @@
                                (proc arg))
                      (write-string ")" out)))))
       (write-string "calc" out)
-      (proc func)))) 
+      (proc func))))
 
 (define-simple-property-function counter (var))
 
 ;;; BLOCKS
-
 (define-special-block charset (charset)
   (list (list :property (format NIL "@charset ~a" (resolve charset)))))
 
@@ -101,9 +100,55 @@
                    table)))
      ,@body))
 
+(defmacro bind-vars* (bindings &body body)
+  `(let ((*vars* (let ((table (make-hash-table)))
+                   (maphash #'(lambda (k v) (setf (gethash k table) v)) *vars*)
+                   table)))
+     (progn
+       (loop for (k v) in ,bindings
+             do (setf (gethash k *vars*)
+                      (resolve v)))
+       ,@body)))
+
 (define-special-block let (bindings &rest body)
   (bind-vars bindings
-             (apply #'compile-sheet body)))
+    (apply #'compile-sheet body)))
+
+(define-special-block let* (bindings &rest body)
+  (bind-vars* bindings
+    (apply #'compile-sheet body)))
+
+(define-special-block include (file)
+  (format t "~A ~%" *current-file*)
+  (let* ((eof (gensym "EOF"))
+         (in (resolve file))
+         (parent-dir (if *current-file*
+                         (make-pathname :defaults *current-file*
+                                        :name nil :type nil)
+                         #p"./"))
+         (directory (pathname-directory in))
+         (parent-directory (pathname-directory parent-dir))
+         (path
+           (make-pathname :defaults parent-dir
+                          :directory (ecase (first directory)
+                                       ((nil) parent-directory)
+                                       (:absolute directory)
+                                       (:relative (append parent-directory (rest directory))))
+                          :name (pathname-name in)
+                          :type (pathname-type in)
+                          :version (pathname-version in)))
+         (*current-file* path))
+    (bind-vars* '()
+      (apply #'compile-sheet
+             (with-open-file (instream path :direction :input)
+               (loop for read = (read instream NIL eof)
+                     until (eql read eof)
+                     collect read))))))
+
+;;; Function for constructing property value lists in let/let* bindings
+(setf (property-function "values")
+      (lambda (&rest args) (format nil "~{~a~^ ~}" (mapcar #'resolve args))))
+
 
 ;;; SELECTORS
 
