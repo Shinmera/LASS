@@ -27,16 +27,16 @@
 (define-property-function calc (func)
   (with-output-to-string (out)
     (labels ((proc (func)
+               (write-string "(" out)
                (if (or (not (listp func))
                        (property-function (first func)))
                    (write-string (resolve func) out)
                    (destructuring-bind (func first &rest rest) func
-                     (write-string "(" out)
                      (proc first)
                      (loop :for arg :in rest
                            :do (format out " ~A " (resolve func))
-                               (proc arg))
-                     (write-string ")" out)))))
+                               (proc arg))))
+               (write-string ")" out)))
       (write-string "calc" out)
       (proc func))))
 
