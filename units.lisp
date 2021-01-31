@@ -58,8 +58,11 @@
      (define-unit |pt| :def (1/72 |inch|) :alias (|point| |points|) :prefix-test (constantly nil))
      (define-unit |pc| :def (1/6 |inch|) :alias (|pica| |picas|) :prefix-test (constantly nil))
      (define-unit |px| :def (1/96 |inch|) :alias (|pixel| |pixels|) :prefix-test (constantly nil))
-     ;; assuming the most common font size, used only in mixed calculations
-     (define-unit |em| :def (16 |px|) :prefix-test (constantly nil))
+
+     ;; relative units: em, ex, ch, rem, lh, vw, vh, vmin, vmax
+     ,@(mapcar (lambda (unit)
+                 `(define-unit ,unit :prefix-test (constantly nil)))
+               '(|em| |ex| |ch| |rem| |lh| |vw| |vh| |vmin| |vmax|))
 
      ,@body))
 
@@ -67,6 +70,8 @@
   "Parses CSS number wrapping it in pq:quantity if unit of measure is present"
   (cond ((stringp x)
          (multiple-value-bind (val idx) (parse-float x :junk-allowed t)
+           (when (zerop idx)
+             (signal 'pq:invalid-unit-error))
            (let ((q-unit (cond (unit unit)
                                ((>= idx (length x)) nil)
                                ((char-equal #\e (char x (1- idx))) (subseq x (1- idx)))
@@ -151,10 +156,14 @@
 
 (defmacro define-css-op (op)
   `(define-property-function ,(string op) (&rest args)
-     (with-css-units
-       (css-number-string
-        (apply #',(intern (string-upcase (concatenate 'string "q" (string op))))
-               (mapcar (lambda (x) (parse-css-number (resolve x))) args))))))
+     (handler-case (with-css-units
+                     (css-number-string
+                      (apply #',(intern (string-upcase (concatenate 'string "q" (string op))))
+                             (mapcar (lambda (x) (parse-css-number (resolve x))) args))))
+       ;; Catch errors that originate from non-existing or non-convertable (e.g. px and em) units.
+       (pq:invalid-unit-error
+         ()
+         (format nil ,(format nil "(~~{~~a~~^ ~a ~~})" op) (mapcar #'resolve args))))))
 
 ;;; Assign unit to a number
 (define-property-function unit (value &optional unit)
