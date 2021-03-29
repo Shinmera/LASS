@@ -44,9 +44,6 @@ See COMPILE-CONSTRAINT."
        (destructuring-bind ,args ,argsym
          ,@body))))
 
-(defparameter *current-file* nil
-  "Current LASS file path")
-
 (defun generate (in &key (out (merge-pathnames (make-pathname :type "css") in)) (pretty NIL) (if-exists :supersede))
   "Generate a CSS file from a LASS file.
 
@@ -56,8 +53,7 @@ PRETTY    --- Whether to minify or not. See WRITE-SHEET.
 IF-EXISTS --- See WITH-OPEN-FILE
 
 Returns OUT"
-  (let ((eof (gensym "EOF"))
-        (*current-file* in))
+  (let ((eof (gensym "EOF")))
     (with-open-file (outstream out :direction :output :if-exists if-exists)
       (write-sheet
        (apply #'compile-sheet
