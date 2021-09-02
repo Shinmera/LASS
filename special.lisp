@@ -271,7 +271,7 @@ is used as a fallback."
   (:default (property)
     (make-property property (format NIL "~{~a~^ ~}" (mapcar #'resolve args)))))
 
-(define-browser-property box-shadow (inset x y &optional blur spread color)
+(define-browser-property box-shadow (color &optional x y blur spread inset)
   (:default (property)
-    (make-property property (format NIL "~a ~a ~a~@[ ~a~]~@[ ~a~]~@[ ~a~]"
-                                    (resolve inset) (resolve x) (resolve y) (resolve blur) (resolve spread) (resolve color)))))
+    (make-property property (format NIL "~a~@[ ~a~]~@[ ~a~]~@[ ~a~]~@[ ~a~]~@[ ~a~]"
+                                    (resolve color) (resolve x) (resolve y) (resolve blur) (resolve spread) (resolve inset)))))
