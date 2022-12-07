@@ -290,6 +290,8 @@ Once you visit a `.lass` file, it will automatically start in the `LASS` major-m
 
 If your operating system is not directly supported with a binary, you can build it yourself using a build tool like [Buildapp](http://www.xach.com/lisp/buildapp/), the ASDF system `BINARY-LASS` and the entry-point `BINARY-LASS:CMD-WRAPPER`.
 
+To generate pretty `.lass` files, set `lass-generate-pretty-p` to `t`.
+
 ASDF Integration
 ----------------
 If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do this via a `lass-file` component type, and `:defsystem-depends-on`-ing LASS.

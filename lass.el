@@ -2,6 +2,10 @@
 ;; (c) 2014 TymoonNET/NexT http://tymoon.eu (shinmera@tymoon.eu)
 ;; Author: Nicolas Hafner <shinmera@tymoon.eu>
 
+(defcustom lass-generate-pretty-p nil
+  "Whether to generate pretty .lass files."
+  :type 'boolean)
+
 (defun lass-compile-current ()
   (interactive)
   (or
@@ -9,7 +13,11 @@
               (or (slime-eval '(cl:not (cl:null (cl:find-package :lass))))
                   (and (slime-eval '(cl:not (cl:null (cl:find-package :ql))))
                        (slime-eval '(ql:quickload :lass)))))
-     (message "LASS compiled to %s" (slime-eval `(uiop:native-namestring (lass:generate (uiop:parse-native-namestring ,(buffer-file-name)))))))
+     (message "LASS compiled to %s"
+              (slime-eval `(uiop:native-namestring
+                            (lass:generate
+                             (uiop:parse-native-namestring ,(buffer-file-name))
+                             :pretty ,lass-generate-pretty-p)))))
    (message "LASS compiled. %s" (shell-command-to-string (format "lass %s" (shell-quote-argument (buffer-file-name)))))))
 
 (define-derived-mode lass-mode common-lisp-mode
