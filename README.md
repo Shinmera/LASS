@@ -301,3 +301,10 @@ If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do
       :components ((:lass-file "test-file")))
 
 You can also specify an `:output` argument to a `lass-file` to specify what the target css file should be.
+
+## Support
+If you'd like to support the continued development of LASS, please consider becoming a backer on Patreon:
+
+<a href="https://patreon.com/shinmera">
+  <img alt="Patreon" src="https://filebox.tymoon.eu//file/TWpjeU9RPT0=" />
+</a>
