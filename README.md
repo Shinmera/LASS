@@ -114,6 +114,24 @@ But it can go even further:
 
 Whoa nelly!
 
+If you ever need to expand a selector into a parent block, for instance to specialise on different classes of the block, you can use the parent pseudo-selector:
+
+    (lass:compile-and-write
+     '((:or article section)
+       :background black
+       ((:parent .bright)
+        :background white)))
+    
+    "article,
+    section{
+        background: black;
+    }
+    
+    article.bright,
+    section.bright{
+        background: white;
+    }"
+
 Some CSS properties are not fully specified yet and require browser-specific prefixes. LASS can help you with that, too:
 
     (lass:compile-and-write

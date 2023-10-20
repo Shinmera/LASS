@@ -122,7 +122,10 @@ See DEFINE-SPECIAL-SELECTOR.")
       (loop with result = ()
             for func in cfunc
             do (loop for arg in cargs
-                     do (push (list :constraint :combine " " func arg) result))
+                     do (if (and (listp arg) (eql :parent (car arg)))
+                            (dolist (arg (compile-constraint :and (list* func (rest arg))))
+                              (push arg result))
+                            (push (list :constraint :combine " " func arg) result)))
             finally (return (compile-constraint (nreverse result) (cdr args))))))
   (:method ((func null) (args null))
     NIL)
@@ -144,7 +147,9 @@ See DEFINE-SPECIAL-SELECTOR.")
                   finally (return (compile-constraint :and (cons (cons :OR (nreverse result)) (cddr args))))))
           (if (and (listp (first args)) (eql (first (first args)) :OR))
               (rest (first args))
-              args)))))
+              args))))
+  (:method ((func (eql :parent)) args)
+    (list (list* func args))))
 
 (defgeneric compile-selector (selector)
   (:documentation "Compiles the SELECTOR form into a list of alternative selectors.
