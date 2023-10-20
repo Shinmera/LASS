@@ -89,9 +89,11 @@
 (defmacro bind-vars (bindings &body body)
   `(let ((*vars* (let ((table (make-hash-table)))
                    (maphash #'(lambda (k v) (setf (gethash k table) v)) *vars*)
-                   (loop for (k v) in ,bindings
-                         do (setf (gethash k table)
-                                  (resolve v)))
+                   (loop for (k . v) in ,bindings
+                         do (setf (gethash k table) 
+                                  (if (rest v)
+                                      v
+                                      (resolve (car v)))))
                    table)))
      ,@body))
 

@@ -249,7 +249,10 @@ Signals an error.")
                       (T (push (consume readable-list) propvals))))
            (cons property (nreverse propvals)))
          NIL)
-        (call-next-method))))
+        (call-next-method)))
+  (:method ((reference array) readable-list)
+    (values NIL
+            `((:parent) ,@(resolve reference)))))
 
 (defgeneric compile-block (header fields)
   (:documentation "Compiles the block with given HEADER and FIELDS list.
