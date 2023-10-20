@@ -56,6 +56,23 @@ Alternatively however, and this is especially useful in pure LASS files, you can
         background: #0088EE;
     }"
 
+You can also let bind entire property blocks:
+
+   (lass:compile-and-write
+     '(:let ((colors :background "#0088EE"))
+       (div #(colors))
+       (:media "(prefers-color-scheme: light)" (div #(colors)))))
+
+    "div{
+        background: #0088EE;
+    }
+    
+    @media (prefers-color-scheme: light){
+        div{
+            background: #0088EE;
+        }
+    }"
+
 LASS' selector mechanism is very flexible and allows for some complex logic to reduce duplication:
 
     (lass:compile-and-write
