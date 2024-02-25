@@ -133,6 +133,10 @@
 (define-single-arg-selector nth-last-child)
 (define-single-arg-selector nth-last-of-type)
 (define-single-arg-selector nth-of-type)
+(define-single-arg-selector is)
+(define-single-arg-selector not)
+(define-single-arg-selector where)
+(define-single-arg-selector has)
 
 ;;; ATTRIBUTES
 
