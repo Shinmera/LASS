@@ -10,6 +10,7 @@
     rgba (red green blue alpha)
     hsl (hue saturation lightness)
     hsla (hue saturation lightness alpha)))
+(define-property-function uni (&rest codes) (format NIL "\"~{\\~x~}\"" codes))
 (define-property-function hex (hex) (format NIL "#~6,'0d" hex))
 (define-property-function url (url) (format NIL "url(~s)" url))
 (define-property-function attr (attribute) (format NIL "attr(~a)" (resolve attribute)))
