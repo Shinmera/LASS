@@ -9,12 +9,21 @@
 (defun lass-compile-current ()
   (interactive)
   (or
-   (when (and (slime-connected-p)
+   (when (and (and (fboundp 'slime-connected-p) (slime-connected-p))
               (or (slime-eval '(cl:not (cl:null (cl:find-package :lass))))
                   (and (slime-eval '(cl:not (cl:null (cl:find-package :ql))))
                        (slime-eval '(ql:quickload :lass)))))
      (message "LASS compiled to %s"
               (slime-eval `(uiop:native-namestring
+                            (lass:generate
+                             (uiop:parse-native-namestring ,(buffer-file-name))
+                             :pretty ,lass-generate-pretty-p)))))
+   (when (and (and (fboundp 'sly-connected-p) (sly-connected-p))
+              (or (sly-eval '(cl:not (cl:null (cl:find-package :lass))))
+                  (and (sly-eval '(cl:not (cl:null (cl:find-package :ql))))
+                       (sly-eval '(ql:quickload :lass)))))
+     (message "LASS compiled to %s"
+              (sly-eval `(uiop:native-namestring
                             (lass:generate
                              (uiop:parse-native-namestring ,(buffer-file-name))
                              :pretty ,lass-generate-pretty-p)))))
