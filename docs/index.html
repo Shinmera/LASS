@@ -1,0 +1,414 @@
+<!DOCTYPE html> <html lang="EN"> <head> <meta charset="utf-8"> <title>Lass</title> <style>html body{margin:0 auto 0 auto;padding:20px;max-width:1024px;font-family:sans-serif;font-size:14pt;overflow-y:scroll;}html body a{text-decoration:none;}html body a[href]{color:#0055AA;}html body a[href]:hover{color:#0088EE;}html body pre{background:#FAFAFA;border:1px solid #DDDDDD;padding:0.75em;overflow-x:auto;}html body pre >code a[href]{color:#223388;}article.project h1{font-size:1.7em;}article.project h1,article.project h2,article.project h3,article.project h4,article.project h5,article.project h6{margin:0.2em 0 0.1em 0;text-indent:1em;}article.project >header{text-align:center;}article.project >header img.logo{display:block;margin:auto;max-height:170px;}article.project >header h1{display:inline-block;text-indent:0;font-size:2.5em;}article.project >header .version{vertical-align:bottom;}article.project >header .languages{margin-top:-0.5em;text-transform:capitalize;}article.project >header .description{margin:0;}article.project >header .pages{margin-top:0.5em;font-size:1.2em;text-transform:capitalize;}article.project >header .pages a{display:inline-block;padding:0 0.2em;}article.project >section{margin:1em 0 1em 0;}article.project >section img{max-width:100%;}article.project #index >ul{list-style:none;margin:0;padding:0;}article.project .row label{display:inline-block;min-width:8em;}article.project #system .row{display:flex;}article.project #system #dependencies{display:inline;margin:0;padding:0;}article.project #system #dependencies li{display:inline;padding:0 0.2em;}article.project #system #author label{vertical-align:top;}article.project #system #author ul{display:inline-block;margin:0;padding:0;list-style:none;}article.project #toc nav>*{margin-left:1em;display:block;}article.definition{margin:1em 0 0 0;}article.definition >header h1,article.definition >header h2,article.definition >header h3,article.definition >header h4,article.definition >header h5,article.definition >header h6{text-indent:0;display:inline-block;}article.definition >header ul{display:inline-block;list-style:none;margin:0;padding:0;}article.definition >header ul li{display:inline-block;padding:0 0.2em 0 0;}article.definition >header .visibility{display:none;}article.definition >header .visibility,article.definition >header .type{text-transform:lowercase;}article.definition >header .source-link{visibility:hidden;float:right;}article.definition >header .source-link:after{visibility:visible;content:"[SRC]";}article.definition .docstring{margin:0 0 0 1em;}article.definition .docstring pre{font-size:0.8em;white-space:pre-wrap;}.definition.package >header ul.nicknames{display:inline-block;list-style:none;margin:0;padding:0 0 0 1em;}.definition.package >header ul.nicknames li{display:inline;}.definition.package >header ul.nicknames:before{content:"(";}.definition.package >header ul.nicknames:after{content:")";}.definition.package ul.definitions{margin:0;list-style:none;padding:0 0 0 0.5em;}.definition.callable >header .name:before,.definition.type >header .name:before{content:"(";font-weight:normal;}.definition.callable >header .arguments:after,.definition.type >header .arguments:after{content:")";}.definition.callable >header .arguments .arguments:before,.definition.type >header .arguments .arguments:before{content:"(";}.definition.callable >header .arguments .argument,.definition.type >header .arguments .argument{padding:0;}.definition.callable >header .arguments .argument.lambda-list-keyword,.definition.type >header .arguments .argument.lambda-list-keyword{color:#991155;}.definition li>mark{background:none;border-left:0.3em solid #0088EE;padding-left:0.3em;display:block;}@media (min-width: 1300px){html body{padding-left:16em;}article.project #toc{margin:0;position:fixed;left:0;top:0;bottom:0;width:15em;overflow-y:auto;background:#F0F0F0;border-right:1px solid #A0A0A0;}}</style> </head> <body> <article class="project"> <header>   <h1>lass</h1>   <span class="version">0.6.0</span>    <p class="description">Lisp Augmented Style Sheets. Compiles LASS to CSS.</p>   </header> <section id="toc"> <h2>Table of Contents</h2> <nav> <a href="#project">Top</a>  <a href="#documentation">Documentation</a> <nav> <a href="#about_lass">About LASS</a>  <a href="#how_to_&amp;_examples">How To &amp; Examples</a>  <a href="#blocks">Blocks</a>  <a href="#selectors">Selectors</a>  <a href="#selector_combinations">Selector Combinations</a>  <a href="#properties">Properties</a>  <a href="#sub-blocks">Sub-Blocks</a>  <a href="#special_blocks">Special Blocks</a>  <a href="#variables">Variables</a>  <a href="#extending_lass">Extending LASS</a>  <a href="#emacs_support">Emacs Support</a>  <a href="#asdf_integration">ASDF Integration</a>  <a href="#support">Support</a> </nav>  <a href="#system">System</a>  <a href="#system">Packages</a> <nav> <a href="#PACKAGE%20LASS">LASS</a> </nav>  </nav> </section>  <section id="documentation"><h2 id="about_lass">About LASS</h2> <p>Writing CSS files comes with a lot of repetition and is generally much too verbose. With lispy syntax, shortcuts, and improvements, LASS aims to help you out in writing CSS quick and easy. LASS was largely inspired by <a href="http://sass-lang.com/">SASS</a>.</p> <h2 id="how_to_&amp;_examples">How To &amp; Examples</h2> <p>LASS supports two modes, one being directly in your lisp code, the other in pure LASS files. Adding LASS into your code is easy:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '(div
+   :background black))
+
+&quot;div{
+    background: black;
+}&quot;
+</code></pre> <p>LASS works on the following simple principles: A list is a block. The first argument in the list is a selector. The body of the list makes up the properties and sub-blocks. A property is started with a keyword that is used as the property name. Following is a bunch of property arguments until a new keyword, list, or the end is reached. A list inside a block is, again, a block with the twist that the parent block's selector is prepended to the sub-block's selector.</p> <pre><code>(lass:compile-and-write
+ '(nav
+   (ul
+    :list-style none
+    (li
+     :margin 0 :padding 0
+     :display inline-block)))))
+
+&quot;nav ul{
+    list-style: none;
+}
+
+nav ul li{
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}&quot;
+</code></pre> <p>Since LASS' <code><a href="#FUNCTION%20LASS%3ACOMPILE-SHEET" class="xref">COMPILE-SHEET</a></code> simply takes a bunch of lists as its argument, you can use the backquote and comma to integrate variables from your lisp environment:</p> <pre><code>(let ((color &quot;#0088EE&quot;))
+  (lass:compile-and-write
+   `(div
+     :background ,color))))
+
+&quot;div{
+    background: #0088EE;
+}&quot;
+</code></pre> <p>Alternatively however, and this is especially useful in pure LASS files, you can use the <code><a href="#SPECIAL-OPERATOR%20LASS%3ALET" class="xref">LET</a></code> block to create LASS-specific bindings:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '(:let ((color &quot;#0088EE&quot;))
+   (div
+    :background #(color))))
+
+&quot;div{
+    background: #0088EE;
+}&quot;
+</code></pre> <p>You can also let bind entire property blocks:</p> <p>(lass:compile-and-write
+     '(:let ((colors :background &quot;#0088EE&quot;))
+       (div #(colors))
+       (:media &quot;(prefers-color-scheme: light)&quot; (div #(colors)))))</p> <pre><code>&quot;div{
+    background: #0088EE;
+}
+
+@media (prefers-color-scheme: light){
+    div{
+        background: #0088EE;
+    }
+}&quot;
+</code></pre> <p>LASS' selector mechanism is very flexible and allows for some complex logic to reduce duplication:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '(article
+   ((:or p blockquote)
+    :margin 0 :padding 0
+
+    (a
+     :color black)
+
+    ((:and a :hover)
+     :color darkred))))
+
+&quot;article p, article blockquote{
+    margin: 0;
+    padding: 0;
+}
+
+article p a, article blockquote a{
+    color: black;
+}
+
+article p a:hover, article blockquote a:hover{
+    color: darkred;
+}&quot;
+</code></pre> <p>But it can go even further:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '((:and
+    (:or article section)
+    (:= data-author (:or yukari ran chen))
+    (:nth-child (:or 1 2 3)))
+   :display none))
+
+&quot;article[data-author=\&quot;yukari\&quot;]:nth-child(1),
+ article[data-author=\&quot;yukari\&quot;]:nth-child(2),
+ article[data-author=\&quot;yukari\&quot;]:nth-child(3),
+ article[data-author=\&quot;ran\&quot;]:nth-child(1),
+ article[data-author=\&quot;ran\&quot;]:nth-child(2),
+ article[data-author=\&quot;ran\&quot;]:nth-child(3),
+ article[data-author=\&quot;chen\&quot;]:nth-child(1),
+ article[data-author=\&quot;chen\&quot;]:nth-child(2),
+ article[data-author=\&quot;chen\&quot;]:nth-child(3),
+ section[data-author=\&quot;yukari\&quot;]:nth-child(1),
+ section[data-author=\&quot;yukari\&quot;]:nth-child(2),
+ section[data-author=\&quot;yukari\&quot;]:nth-child(3),
+ section[data-author=\&quot;ran\&quot;]:nth-child(1),
+ section[data-author=\&quot;ran\&quot;]:nth-child(2),
+ section[data-author=\&quot;ran\&quot;]:nth-child(3),
+ section[data-author=\&quot;chen\&quot;]:nth-child(1),
+ section[data-author=\&quot;chen\&quot;]:nth-child(2),
+ section[data-author=\&quot;chen\&quot;]:nth-child(3){
+    display: none;
+}&quot;
+</code></pre> <p>Whoa nelly!</p> <p>If you ever need to expand a selector into a parent block, for instance to specialise on different classes of the block, you can use the parent pseudo-selector:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '((:or article section)
+   :background black
+   ((:parent .bright)
+    :background white)))
+
+&quot;article,
+section{
+    background: black;
+}
+
+article.bright,
+section.bright{
+    background: white;
+}&quot;
+</code></pre> <p>Some CSS properties are not fully specified yet and require browser-specific prefixes. LASS can help you with that, too:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '(.fun
+   :linear-gradient &quot;deg(45)&quot; black 0% darkgray 100%
+   :transform rotate -45deg))
+
+&quot;.fun{
+    background: -moz-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -o-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -webkit-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -ms-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: linear-gradient(deg(45), black 0%, darkgray 100%);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}&quot;
+</code></pre> <p>LASS also supports the various <code>@QUERY</code> operator blocks:</p> <pre><code>(<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+ '(:media &quot;(max-width: 800px)&quot;
+   (div
+    :margin 0)))
+
+&quot;@media (max-width: 800px){
+    div{
+        margin: 0;
+    }
+}&quot;
+</code></pre> <p>By default LASS activates pretty-printing and inserts newlines and spaces where appropriate in order to make the result readable and easy to debug. However, you can also deactivate that and directly produce minified CSS:</p> <pre><code>(let ((<a href="#VARIABLE%20LASS%3A%2APRETTY%2A" class="xref">lass:*pretty*</a> NIL))
+  (<a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE" class="xref">lass:compile-and-write</a>
+   '(:media &quot;(max-width: 800px)&quot;
+     (div
+      :margin 0))))
+
+&quot;@media (max-width: 800px){div{margin:0;}}&quot;
+</code></pre> <p>As mentioned above you can write pure LASS files to compile down to a CSS file. To do that, simply use <code><a href="#FUNCTION%20LASS%3AGENERATE" class="xref">GENERATE</a></code>:</p> <p><img src="http://shinmera.tymoon.eu/public/screenshot-2014.09.04-23:57:38.png" alt="generate-example"></p> <h2 id="blocks">Blocks</h2> <p>Each block in a LASS sheet consists of a list containing a selector followed by one or more properties or sub-blocks. </p> <pre><code>(selector [property | block]*)
+</code></pre> <h2 id="selectors">Selectors</h2> <p>The following list contains examples for the various uses of selectors.</p> <ul> <li>Any element<br> <code><a href="#FUNCTION%20LASS%3A%2A" class="xref">*</a></code></li> <li>An element with tag-name <code>e</code><br> <code>e</code></li> <li>An element with tag-name <code>e</code> or <code>f</code><br> <code>(:or e f)</code></li> <li>An <code>e</code> element with the <code>:link</code> pseudo-selector<br> <code>(:and e :link)</code></li> <li>The first formatted line of an <code>e</code> element<br> <code>(:and e |::first-line|)</code> or <code>(:and e &quot;::first-line&quot;)</code></li> <li>An <code>e</code> element with a &quot;warning&quot; class<br> <code>e.warning</code></li> <li>An <code>e</code> element with ID equal to <code><a href="#CONDITION%20LASS%3AWARNING" class="xref">warning</a></code><br> <code>|e#warning|</code> or <code>&quot;e#warning&quot;</code></li> <li>An <code>e</code> element with a <code>foo</code> attribute<br> <code>e[foo]</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute value is exactly equal to <code>bar</code><br> <code>(:and :a (:= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute value is a list of whitespace-separated values, one of which is exactly equal to <code>bar</code><br> <code>(:and :a (:~= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute has a hyphen-separated list of values beginning (from the left) with <code>bar</code><br> <code>(:and :a (:/= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute value begins exactly with the string <code>bar</code><br> <code>(:and :a (:^= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute value ends exactly with the string <code>bar</code><br> <code>(:and :a (:$= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element whose <code>foo</code> attribute value contains the substring <code>bar</code><br> <code>(:and :a (:*= foo &quot;bar&quot;))</code></li> <li>An <code>e</code> element that matches the pseudo-selector <code>nth-child(2)</code><br> <code>(e (:nth-child 2))</code></li> <li>An <code>f</code> element preceded by an <code>e</code> element<br> <code>(e ~ f)</code></li> <li>An <code>f</code> element immediately precede by an <code>e</code> element<br> <code>(e + f)</code></li> <li>An <code>f</code> element which is a descendant of <code>e</code><br> <code>(e f)</code></li> <li>An <code>f</code> element which is a direct descendant of <code>e</code><br> <code>(e &gt; f)</code></li> </ul> <h2 id="selector_combinations">Selector Combinations</h2> <p>As illustrated briefly above, LASS includes two combinators for selectors, <code>:and</code> and <code>:or</code>. These combinators are <em>combinatoric</em>, meaning that all possible combinations are explored. Consider the following selector:</p> <pre><code>((foo (:and a .title (:or :active :hover)) (:or span div)))
+</code></pre> <p>Enumerating all possible answers to this combination would result in the following list</p> <pre><code>foo a.title:active span
+foo a.title:active div
+foo a.title:hover span
+foo a.title:hover div
+</code></pre> <p>The number of possible combinations can quickly explode in size the more options are available. This means that for complex relations and expressions, LASS can be extremely concise. Note that combinators are available at any position in a selector, this includes the arguments of a pseudo-selector like <code>:nth-child</code>.</p> <h2 id="properties">Properties</h2> <p>A property consists of a keyword symbol and a sequence of values. The values to a property are gathered up until either a non-value list or a new keyword is encountered. Originally it stopped as soon as a list was encountered, but this behaviour was changed and specially recognised lists are integrated to allow a more native look for certain values like colours, urls, and so on. Certain properties are specifically declared and will error if they are passed the wrong number or invalid kind of values. For most however, LASS will just blindly put things into the CSS file as you give them. It is up to you to make sure that the values are valid.</p> <pre><code>:text-style underline
+:color (rgb 212 112 30)
+:background (url &quot;/foo&quot;)
+:border 1px solid black
+</code></pre> <p>Certain properties currently still require vendor-specific declarations. LASS tries to do that automatically for you, but it also needs to know about these declarations and as such, they need to be manually added. Some of the more common ones are included in LASS by default, but if you encounter one that isn't, you are welcome to send a pull request (see Extending LASS on how to do it).</p> <h2 id="sub-blocks">Sub-Blocks</h2> <p>A block can contain other blocks. These sub-blocks are recursively flattened into the structure by simply prepending the selector of the parent block. Thus</p> <pre><code>(foo (bar (baz) (bam)))
+</code></pre> <p>Is equivalent to</p> <pre><code>(foo) ((foo bar)) ((foo bar baz)) ((foo bar bam))
+</code></pre> <p>Allowing this kind of nesting allows you to more closely mirror the structure present in your HTML file that you want to style. Combining this with the selector combinations, this system allows reducing code duplication a lot.</p> <h2 id="special_blocks">Special Blocks</h2> <p>In CSS3 there are special properties and blocks that are preceded by an <code>@</code> symbol. The most well-known examples therefore are probably <code>@include</code> and <code>@media</code>. LASS implements all of these special blocks by a keyword symbol equivalent selector. Therefore the above two would translate to the following in LASS.</p> <pre><code>(:include (url &quot;foo&quot;))
+(:media &quot;(max-width: 800px)&quot;
+ (foo))
+</code></pre> <h2 id="variables">Variables</h2> <p>Often times it is useful to define variables that you can use within your style so that colours and fonts can quickly be exchanged. LASS allows you to do that too using the <code>:let</code> directive and by abusing the vector type. It is probably best illustrated using an example:</p> <pre><code>(:let ((foo &quot;#0088EE&quot;))
+  ((a:active) :color #(foo)))
+</code></pre> <h2 id="extending_lass">Extending LASS</h2> <p>Pretty much every part of LASS is extensible through methods. Most useful will however probably be the <code><a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-PROPERTY" class="xref">DEFINE-SPECIAL-PROPERTY</a></code>, <code><a href="#MACRO-FUNCTION%20LASS%3ADEFINE-BROWSER-PROPERTY" class="xref">DEFINE-BROWSER-PROPERTY</a></code> and <code><a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-SELECTOR" class="xref">DEFINE-SPECIAL-SELECTOR</a></code> helper-macros. Here's some examples from the <code>SPECIAL.LISP</code> file that defines some standard special handlers:</p> <pre><code><a href="http://l1sp.org/cl/defmethod" class="xref">(</a><a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-PROPERTY" class="xref">define-special-property</a> font-family (&amp;rest faces)
+  (<a href="http://l1sp.org/cl/list" class="xref">list</a> (<a href="#FUNCTION%20LASS%3AMAKE-PROPERTY" class="xref">make-property</a> &quot;font-family&quot; (<a href="http://l1sp.org/cl/format" class="xref">format</a> NIL &quot;~{~a~^, ~}&quot; (<a href="http://l1sp.org/cl/mapcar" class="xref">mapcar</a> <a href="#GENERIC-FUNCTION%20LASS%3ARESOLVE" class="xref">#'resolve</a> faces)))))
+
+<a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-PROPERTY" class="xref">(</a><a href="#MACRO-FUNCTION%20LASS%3ADEFINE-BROWSER-PROPERTY" class="xref">define-browser-property</a> linear-gradient (direction &amp;rest colors)
+  (:default (property)
+    (<a href="#FUNCTION%20LASS%3AMAKE-PROPERTY" class="xref">make-property</a> &quot;background&quot; (<a href="http://l1sp.org/cl/format" class="xref">format</a> NIL &quot;~a(~a~{, ~a ~a~})&quot;
+                                         property (<a href="#GENERIC-FUNCTION%20LASS%3ARESOLVE" class="xref">resolve</a> direction) (<a href="http://l1sp.org/cl/mapcar" class="xref">mapcar</a> <a href="#GENERIC-FUNCTION%20LASS%3ARESOLVE" class="xref">#'resolve</a> colors)))))
+</code></pre> <p>For more control, have a look at the various <code>COMPILE-*</code> generic functions.</p> <h2 id="emacs_support">Emacs Support</h2> <p>LASS includes a tiny elisp file, <code>lass.el</code>. Add LASS' directory to your emacs <code>LOAD-PATH</code> and <code><a href="#FUNCTION%20LASS%3AREQUIRE" class="xref">REQUIRE</a></code> lass.</p> <pre><code>(add-to-list 'load-path &quot;[path-to-lass-source-dir]/&quot;)
+(<a href="http://l1sp.org/cl/require" class="xref">require</a> 'lass)
+</code></pre> <p>Once you visit a <code>.lass</code> file, it will automatically start in the <code><a href="#PACKAGE%20LASS" class="xref">LASS</a></code> major-mode, which is a derived-mode from <code>COMMON-LISP-MODE</code>. Whenever you save, it will automatically try to compile the lass file to its CSS equivalent. If slime is connected, it will try to quickload LASS and evaluate <code><a href="#FUNCTION%20LASS%3AGENERATE" class="xref">GENERATE</a></code>. If slime is not connected, it instead executes a shell command. In order for that to work, the <a href="https://github.com/Shinmera/LASS/releases"><code><a href="#PACKAGE%20LASS" class="xref">lass</a></code> binary</a> must be in your path.</p> <p>If your operating system is not directly supported with a binary, you can build it yourself using a build tool like <a href="http://www.xach.com/lisp/buildapp/">Buildapp</a>, the ASDF system <code>BINARY-LASS</code> and the entry-point <code>BINARY-LASS:CMD-WRAPPER</code>.</p> <p>To generate pretty <code>.lass</code> files, set <code>lass-generate-pretty-p</code> to <code><a href="#CLASS%20LASS%3AT" class="xref">t</a></code>.</p> <h2 id="asdf_integration">ASDF Integration</h2> <p>If you want to compile LASS files to CSS in your systems, you can now (v0.4+) do this via a <code><a href="#CLASS%20LASS%3ALASS-FILE" class="xref">lass-file</a></code> component type, and <code>:defsystem-depends-on</code>-ing LASS.</p> <pre><code><a href="http://l1sp.org/cl/apply" class="xref">(</a>asdf:defsystem my-system
+  :defsystem-depends-on (:lass)
+  :components ((:lass-file &quot;test-file&quot;)))
+</code></pre> <p>You can also specify an <code>:output</code> argument to a <code><a href="#CLASS%20LASS%3ALASS-FILE" class="xref">lass-file</a></code> to specify what the target css file should be.</p> <h2 id="support">Support</h2> <p>If you'd like to support the continued development of LASS, please consider becoming a backer on Patreon:</p> <p><a href="https://patreon.com/shinmera"> <img alt="Patreon" src="https://filebox.tymoon.eu//file/TWpjeU9RPT0="> </a></p> </section>    <section id="system"> <h2>System Information</h2>  <div class="row"> <label for="version">Version:</label> <a id="version">0.6.0</a> </div>   <div class="row"> <label for="dependencies">Dependencies:</label> <ul id="dependencies"><li><a class="external" href="https://shinmera.github.io/trivial-indent/">trivial-indent</a></li><li><a class="external" href="https://Shinmera.github.io/trivial-mimes/">trivial-mimes</a></li><li><a class="external">cl-base64</a></li></ul> </div>   <div class="row" id="author"> <label for="author">Author:</label> <a href="mailto:shinmera@tymoon.eu">Yukari Hafner</a> </div>   <div class="row"> <label for="license">License:</label> <a id="license" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/LICENSE">zlib</a> </div>   <div class="row"> <label for="homepage">Homepage:</label> <a id="homepage" href="https://Shinmera.github.io/LASS/">https://Shinmera.github.io/LASS/</a> </div>   <div class="row"> <label for="bug-tracker">Bug Tracker:</label> <a id="bug-tracker" href="https://github.com/Shinmera/LASS/issues">https://github.com/Shinmera/LASS/issues</a> </div>   <div class="row"> <label for="sources">Sources:</label> <a id="sources" href="https://github.com/Shinmera/LASS.git">https://github.com/Shinmera/LASS.git</a> </div>  </section>    <section id="index"> <h2>Definition Index</h2> <ul> <li> <article class="definition package" id="PACKAGE LASS"> <header> <h3> <a href="#PACKAGE%20LASS">LASS</a> </h3> <ul class="nicknames"> <li>ORG.TYMOONNEXT.LASS</li> </ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition special-variable" id="VARIABLE LASS:*INDENT-LEVEL*"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SPECIAL-VARIABLE</span> <h4 class="name"> <a href="#VARIABLE%20LASS%3A%2AINDENT-LEVEL%2A">*INDENT-LEVEL*</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L5">Source</a>  </header> <div class="docstring"><pre>Directs the current amount of spaces used to indent.</pre></div> </article> </li>  <li> <article class="definition special-variable" id="VARIABLE LASS:*INDENT-SPACES*"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SPECIAL-VARIABLE</span> <h4 class="name"> <a href="#VARIABLE%20LASS%3A%2AINDENT-SPACES%2A">*INDENT-SPACES*</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L7">Source</a>  </header> <div class="docstring"><pre>Specifies the number of spaces to use for indentation.</pre></div> </article> </li>  <li> <article class="definition special-variable" id="VARIABLE LASS:*PRETTY*"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SPECIAL-VARIABLE</span> <h4 class="name"> <a href="#VARIABLE%20LASS%3A%2APRETTY%2A">*PRETTY*</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L3">Source</a>  </header> <div class="docstring"><pre>Directs whether to pretty-print using whitespace or not.</pre></div> </article> </li>  <li> <article class="definition special-variable" id="VARIABLE LASS:*VARS*"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SPECIAL-VARIABLE</span> <h4 class="name"> <a href="#VARIABLE%20LASS%3A%2AVARS%2A">*VARS*</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L3">Source</a>  </header> <div class="docstring"><pre>Special variable containing LASS-environment variables.
+
+See the definition of the LET block.</pre></div> </article> </li>  <li> <article class="definition class" id="CLASS LASS:LASS-FILE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20LASS%3ALASS-FILE">LASS-FILE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/asdf.lisp#L3">Source</a>  </header> <div class="docstring"><pre>An ASDF source-file component to allow compilation of LASS to CSS in ASDF systems.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:COMPILE-AND-WRITE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3ACOMPILE-AND-WRITE">COMPILE-AND-WRITE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">FORMS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/lass.lisp#L61">Source</a>  </header> <div class="docstring"><pre>Shortcut for (WRITE-SHEET (COMPILE-SHEET FORMS*))</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:COMPILE-SHEET"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3ACOMPILE-SHEET">COMPILE-SHEET</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">BLOCKS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L299">Source</a>  </header> <div class="docstring"><pre>Compiles a LASS sheet composed of BLOCKS.
+Each BLOCK is passed to COMPILE-BLOCK. The results thereof are appended
+together into one list of blocks and properties.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:GENERATE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AGENERATE">GENERATE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">IN</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">OUT</li>    <li class="argument">PRETTY</li>    <li class="argument">IF-EXISTS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/lass.lisp#L41">Source</a>  </header> <div class="docstring"><pre>Generate a CSS file from a LASS file.
+
+IN        --- The LASS input file. Has to be READable.
+OUT       --- The target file, by default a file of same location and name, but with CSS type.
+PRETTY    --- Whether to minify or not. See WRITE-SHEET.
+IF-EXISTS --- See <a href="#MACRO-FUNCTION%20LASS%3AWITH-OPEN-FILE" class="xref">WITH-OPEN-FILE</a>
+
+Returns OUT</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:INDENT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AINDENT">INDENT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L15">Source</a>  </header> <div class="docstring"><pre>Returns a string of the appropriate number of spaces depending on *PRETTY* and *INDENT-LEVEL*</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:MAKE-BLOCK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AMAKE-BLOCK">MAKE-BLOCK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">SELECTOR</li>    <li class="argument">VALUES</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L52">Source</a>  </header> <div class="docstring"><pre>Creates a block object with SELECTOR and VALUES.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:MAKE-PROPERTY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AMAKE-PROPERTY">MAKE-PROPERTY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROPERTY</li>    <li class="argument lambda-list-keyword">&amp;OPTIONAL</li>    <li class="argument">VALUE</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L48">Source</a>  </header> <div class="docstring"><pre>Creates a property object with PROPERTY as its key and VALUE as its value.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:PROPERTY-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3APROPERTY-FUNCTION">PROPERTY-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L5">Source</a>  </header> <div class="docstring"><pre>Returns a function to process a property function of NAME, if any.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:(SETF PROPERTY-FUNCTION)"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3A%28SETF%20PROPERTY-FUNCTION%29">(SETF PROPERTY-FUNCTION)</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">FUNCTION</li>    <li class="argument">NAME</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L9">Source</a>  </header> <div class="docstring"><pre>Sets FUNCTION as the new processor for the property function NAME.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:REMOVE-PROPERTY-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AREMOVE-PROPERTY-FUNCTION">REMOVE-PROPERTY-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L14">Source</a>  </header> <div class="docstring"><pre>Removes the property function NAME.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:RESOLVE-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3ARESOLVE-FUNCTION">RESOLVE-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">FUNCTION</li>    <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L43">Source</a>  </header> <div class="docstring"><pre>Turns the FUNCTION with its ARGS into a properly usable property value.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:WRITE-SHEET"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AWRITE-SHEET">WRITE-SHEET</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">SHEET</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">STREAM</li>    <li class="argument">PRETTY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L108">Source</a>  </header> <div class="docstring"><pre>Writes the compiled SHEET object to STREAM.
+If PRETTY is non-NIL, spaces and newlines are inserted as appropriate
+in order to create a human-readable stylesheet. Otherwise whitespace is
+only used where necessary, producing a minified version.
+
+STREAM can be a STREAM, T for *STANDARD-OUTPUT*, or NIL for a STRING.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION LASS:WRITE-SHEET-PART"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20LASS%3AWRITE-SHEET-PART">WRITE-SHEET-PART</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">STREAM</li>    <li class="argument">BLOCK</li>    <li class="argument">CP</li>    <li class="argument">AP</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L102">Source</a>  </header> <div class="docstring"><pre>Wrapper around WRITE-SHEET-OBJECT so that we can call it from FORMAT.
+Calls WRITE-SHEET-OBJECT with (CAR BLOCK) (CDR BLOCK) STREAM.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:COMPILE-BLOCK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-BLOCK">COMPILE-BLOCK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">HEADER</li>    <li class="argument">FIELDS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L257">Source</a>  </header> <div class="docstring"><pre>Compiles the block with given HEADER and FIELDS list.
+By default, the following case is handled:
+
+ (T T)
+Blocks are handled in the following way:
+The HEADER is used as a selector and compiled through COMPILE-SELECTOR.
+Fields are semantically segregated through KEYWORDS and LISTS.
+
+Every time a KEYWORD is encountered, it is taken as the current property
+and all following objects until either a LIST or a KEYWORD is encountered
+are gathered as the property's values.
+
+Every time a LIST is encountered, it is taken as a SUB-BLOCK and is
+passed to COMPILE-BLOCK with the HEADER being the current block's
+selector prepended to the selector of the sub-block.
+
+
+Special handling of blocks may occur. 
+See DEFINE-SPECIAL-BLOCK.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:COMPILE-CONSTRAINT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-CONSTRAINT">COMPILE-CONSTRAINT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">FUNC</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L90">Source</a>  </header> <div class="docstring"><pre>Compiles a constraint of type FUNC with arguments ARGS to a list of alternative selectors.
+By default, the following cases are handled:
+
+ (T T)
+Concatenates its ARGS together with spaces.
+Preserves OR combinations.
+
+ (NULL NULL)
+Returns NIL
+
+ (T NULL)
+Returns FUNC
+
+ (:OR T)
+Passes all ARGS to COMPILE-SELECTOR individually and then APPENDS
+all the results together.
+
+ (:AND T)
+Concatenates its ARGS together without spaces.
+Preserves OR combinations.
+
+
+Special handling of constraints may occur.
+See DEFINE-SPECIAL-SELECTOR.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:COMPILE-PROPERTY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-PROPERTY">COMPILE-PROPERTY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">KEY</li>    <li class="argument">VALUE</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L60">Source</a>  </header> <div class="docstring"><pre>Compile a property of KEY and VALUE to a list of property objects.
+By default, the following cases are handled:
+
+ (T LIST)
+A list is created with one property object, wherein the property-value is the
+Space-concatenated list of RESOLVEd VALUEs. The KEY is DOWNCASEd.
+
+ (T T)
+A list is created with one property object, wherein the property-value is the
+RESOLVEd VALUE. The KEY is DOWNCASEd.
+
+
+Special handling of properties may occur.
+See <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-PROPERTY" class="xref">DEFINE-SPECIAL-PROPERTY</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:COMPILE-SELECTOR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-SELECTOR">COMPILE-SELECTOR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">SELECTOR</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L154">Source</a>  </header> <div class="docstring"><pre>Compiles the SELECTOR form into a list of alternative selectors.
+By default, the following cases are handled:
+
+ (NULL)
+Returns NIL.
+
+ (LIST)
+Calls COMPILE-CONSTRAINT with the SELECTOR's CAR and CDR.
+
+ (T)
+Returns a list with the RESOLVEd SELECTOR.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:CONSUME-ITEM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ACONSUME-ITEM">CONSUME-ITEM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">ITEM</li>    <li class="argument">READABLE-LIST</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L217">Source</a>  </header> <div class="docstring"><pre>Consumes items from READABLE-LIST as required by the ITEM.
+Returned should be two values, the first being a property to compile (or NIL)
+and the second a block to compile (or NIL).
+By default, the following cases are handled:
+
+ (LIST)
+Simply returns the ITEM as a block.
+
+ (SYMBOL)
+If it's a keyword, reads until the next keyword or list and returns that as a
+property to compile. With property-functions, some sublists may also be read
+in automatically. See DEFINE-PROPERTY-FUNCTION. If it is a regular symbol,
+CALL-NEXT-METHOD is invoked.
+
+ (T)
+Signals an error.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:RESOLVE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3ARESOLVE">RESOLVE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">THING</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/compiler.lisp#L16">Source</a>  </header> <div class="docstring"><pre>Resolves THING to a value that makes sense for LASS.
+
+By default the following types are handled:
+NULL:     NIL
+STRING:   the THING itself
+ARRAY:    the variable stored in *VARS* under THING
+KEYWORD:  Colon-prefixed, downcased symbol-name of THING
+SYMBOL:   Downcased symbol-name of THING
+PATHNAME: If designating an image, base64 encoded inline image data.
+T:        PRINC-TO-STRING of THING</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION LASS:WRITE-SHEET-OBJECT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20LASS%3AWRITE-SHEET-OBJECT">WRITE-SHEET-OBJECT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">TYPE</li>    <li class="argument">OBJECT</li>    <li class="argument">STREAM</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/writer.lisp#L19">Source</a>  </header> <div class="docstring"><pre>Writes the OBJECT of type TYPE to STREAM.
+
+By default the following TYPEs are handled:
+ :BLOCK (SELECTOR-LIST OBJECTS*)
+Prints the SELECTOR-LIST separated by commas, followed by an opening brace
+and the printed list of OBJECTS using WRITE-SHEET-PART. Finally the body is
+closed off with a closing brace. Newlines and spaces may be inserted where
+necessary if *PRETTY* is non-NIL.
+
+ :PROPERTY (KEY VALUE)
+Prints the KEY. If VALUE is non-NIL, a colon is printed followed by the
+VALUE. Finally a semicolon is printed. Spaces may be inserted where necessary
+if *PRETTY* is non-NIL.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-BROWSER-PROPERTY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-BROWSER-PROPERTY">DEFINE-BROWSER-PROPERTY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BROWSER-OPTIONS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/special.lisp#L168">Source</a>  </header> <div class="docstring"><pre>Helper macro to define properties that have browser-dependant versions.
+
+NAME            --- The base name of the property name or value.
+ARGS            --- Property arguments, see DEFINE-SPECIAL-PROPERTY.
+BROWSER-OPTIONS ::= (OPTION (symbol) FORM*)
+OPTION          ::= :MOZ | :O | :WEBKIT | :MS | :W3C | :DEFAULT
+
+Each browser-option body should return a single property. The SYMBOL
+in the option definition is bound to the computed property name
+ (eg -moz-NAME for the :MOZ option).
+You can define special handling of the browsers by defining options
+specifically for them. If no handling is defined, the DEFAULT option
+is used as a fallback.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-PRIMITIVE-PROPERTY-CONSUMER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-PRIMITIVE-PROPERTY-CONSUMER">DEFINE-PRIMITIVE-PROPERTY-CONSUMER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">SPECIALIZER</li>    <ul class="arguments"> <li class="argument">PROPVALS</li>  <li class="argument">READABLE</li>  <li class="argument">NEXT</li>  <li class="argument lambda-list-keyword">&amp;REST</li> </ul>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">LOOP-BODY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L75">Source</a>  </header> <div class="docstring"><pre>Defines a CONSUME-ITEM method for the given item SPECIALIZER.
+
+SPECIALIZER --- The method specializer for the item.
+PROPVALS    --- The list that should contain the property values.
+READABLE    --- The readable-list being operated on currently.
+NEXT        --- Bound to the next (unconsumed) item in the readable-list.
+LOOP-BODY   --- The body of the reading loop to execute until the readable is empty.
+
+The return value of the loop-body is discarded. You can use (RETURN) to exit the loop,
+for example for when you encounter an item you don't want to read.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-PROPERTY-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-PROPERTY-FUNCTION">DEFINE-PROPERTY-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BODY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L18">Source</a>  </header> <div class="docstring"><pre>Define a new property function NAME, accepting ARGS. 
+The body should return a value to use directly, if possible a string.
+The results of a property-function should not be RESOVLEd.
+
+Property functions are function calls that occur as (part of) the
+value of a property. Due to ambiguity issues with a general sub-block,
+property functions need to be explicitly defined and may completely
+differ depending on the property. Property functions defined with this
+are only the defaults available for all properties. If you want to
+minimise collision probability or avoid an illegal function for a
+certain property, you should define a direct method on CONSUME-ITEM
+to handle the reading of the property values manually.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-PROPERTY-FUNCTION-CASE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-PROPERTY-FUNCTION-CASE">DEFINE-PROPERTY-FUNCTION-CASE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROPERTY</li>    <ul class="arguments"> <li class="argument">ARGS</li>  <li class="argument lambda-list-keyword">&amp;REST</li> </ul>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">FUNCTION-CLAUSES</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L97">Source</a>  </header> <div class="docstring"><pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCTION-CLAUSES ::= function-clause*
+FUNCTION-CLAUSE  ::= (function-name form*)
+
+Each function-name is compared by STRING-EQUAL and each clause should return the
+property-value to use in its place, or NIL if it should be skipped.
+
+You can use (RETURN) in a clause body to stop reading values altogether.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SIMPLE-PROPERTY-FUNCTION"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SIMPLE-PROPERTY-FUNCTION">DEFINE-SIMPLE-PROPERTY-FUNCTION</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L34">Source</a>  </header> <div class="docstring"><pre>Defines a property function that returns name(arg1,arg2...).
+Only required arguments are allowed.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SIMPLE-PROPERTY-FUNCTIONS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SIMPLE-PROPERTY-FUNCTIONS">DEFINE-SIMPLE-PROPERTY-FUNCTIONS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROPERTY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">FUNCSPECS</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/property-funcs.lisp#L127">Source</a>  </header> <div class="docstring"><pre>Defines a CONSUME-ITEM method for PROPERTY that has special handling for property-functions.
+
+FUNCSPECS ::= funcspec*
+FUNCSPEC  ::= (funcname arg* [&amp;optional arg*] [&amp;key arg*])
+
+See DEFINE-PROPERTY-FUNCTION-CASE.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SINGLE-ARG-SELECTOR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SINGLE-ARG-SELECTOR">DEFINE-SINGLE-ARG-SELECTOR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/special.lisp#L124">Source</a>  </header> <div class="docstring"><pre>Helper macro to define a single-argument pseudo-selector like NOT or NTH-CHILD.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SPECIAL-BLOCK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-BLOCK">DEFINE-SPECIAL-BLOCK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BODY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/lass.lisp#L3">Source</a>  </header> <div class="docstring"><pre>Define handling of a special block type.
+In order for the block to be recognised, it has to begin with the NAME as a keyword.
+The ARGS is a lambda-list that parses the block contents.
+
+Expected as a return value is a /list/ of either attributes or blocks.
+
+See <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-BLOCK" class="xref">COMPILE-BLOCK</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SPECIAL-PROPERTY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-PROPERTY">DEFINE-SPECIAL-PROPERTY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BODY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/lass.lisp#L16">Source</a>  </header> <div class="docstring"><pre>Define handling of a special property.
+The ARGS is a lambda-list that parses the arguments passed to the property.
+
+Expected as a return value is a /list/ of either attributes or blocks.
+
+See <a href="#GENERIC-FUNCTION%20LASS%3ACOMPILE-PROPERTY" class="xref">COMPILE-PROPERTY</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION LASS:DEFINE-SPECIAL-SELECTOR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20LASS%3ADEFINE-SPECIAL-SELECTOR">DEFINE-SPECIAL-SELECTOR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">NAME</li>    <li class="argument">ARGS</li>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BODY</li>    <li class="argument lambda-list-keyword">&amp;REST</li>  </ul>  <a class="source-link" href="https://github.com/Shinmera/LASS/blob/11cb4599c82934c7ab0310fa0ca6aaf48de73e60/lass.lisp#L28">Source</a>  </header> <div class="docstring"><pre>Define handling of a special selector type.
+In order for the selector to be recognised, it has to begin with the NAME as a keyword.
+The ARGS is a lambda-list that parses the selector contents.
+
+Expected as a return value is a /list/ of alternate versions of selectors.
+
+See COMPILE-CONSTRAINT.</pre></div> </article> </li> </ul> </article> </li> </ul> </section>  </article> <script>window.addEventListener("DOMContentLoaded", function(){
+    var unmarkElement = function(el){
+        if(el.tagName === "mark" || el.tagName === "MARK"){
+            [].forEach.call(el.childNodes, function(child){
+                el.parentNode.insertBefore(child, el);
+            });
+            el.parentNode.removeChild(el);
+        }else if(el.parentNode.tagName === "mark"){
+            return unmarkElement(el.parentNode);
+        }
+        return null;
+    }
+
+    var unmarkAll = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("mark"), unmarkElement);
+    }
+    
+    var markElement = function(el){
+        if(el.parentNode.tagName === "mark" || el.parentNode.tagName === "MARK"){
+            return el.parentNode;
+        } else {
+            unmarkAll();
+            var marked = document.createElement("mark");
+            el.parentNode.insertBefore(marked, el);
+            marked.appendChild(el);
+            return marked;
+        }
+    }
+
+    var markFragmented = function(){
+        if(window.location.hash){
+            var el = document.getElementById(decodeURIComponent(window.location.hash.substr(1)));
+            if(el) markElement(el);
+        }
+    }
+
+    var registerXrefLink = function(link){
+        var el = document.getElementById(decodeURIComponent(link.getAttribute("href").substr(1)));
+        if(el){
+            link.addEventListener("click", function(){
+                markElement(el);
+            });
+        }
+    }
+
+    var registerXrefLinks = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("a.xref"), registerXrefLink);
+    }
+
+    markFragmented();
+    registerXrefLinks();
+}); </script> </body> </html> 
