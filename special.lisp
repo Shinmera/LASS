@@ -129,7 +129,6 @@
 
 (define-single-arg-selector dir)
 (define-single-arg-selector lang)
-(define-single-arg-selector not)
 (define-single-arg-selector nth-child)
 (define-single-arg-selector nth-last-child)
 (define-single-arg-selector nth-last-of-type)
