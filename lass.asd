@@ -5,9 +5,9 @@
   :author "Yukari Hafner <shinmera@tymoon.eu>"
   :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "Lisp Augmented Style Sheets. Compiles LASS to CSS."
-  :homepage "https://Shinmera.github.io/LASS/"
-  :bug-tracker "https://github.com/Shinmera/LASS/issues"
-  :source-control (:git "https://github.com/Shinmera/LASS.git")
+  :homepage "https://shinmera.com/docs/LASS/"
+  :bug-tracker "https://shinmera.com/project/LASS/issues"
+  :source-control (:git "https://shinmera.com/project/LASS.git")
   :serial T
   :components ((:file "package")
                (:file "readable-list")
